@@ -28,4 +28,9 @@ export default defineNuxtConfig({
       posthogDefaults: "2025-11-30",
     },
   },
+  content: {
+    experimental: {
+      sqliteConnector: "native"
+    }
+  }
 });
