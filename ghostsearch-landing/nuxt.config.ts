@@ -21,4 +21,11 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxt/test-utils",
   ],
+  runtimeConfig: {
+    public: {
+      posthogPublicKey: "phc_wJDFwNQ9CC851xP7nxzM7EhIIoMKV1jAXX1FtqU7Hkl",
+      posthogHost: "https://eu.i.posthog.com",
+      posthogDefaults: "2025-11-30",
+    },
+  },
 });

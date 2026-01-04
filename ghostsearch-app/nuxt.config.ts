@@ -24,4 +24,11 @@ export default defineNuxtConfig({
     "nuxt-og-image",
     "@vueuse/nuxt",
   ],
+  runtimeConfig: {
+    public: {
+      posthogPublicKey: "phc_wJDFwNQ9CC851xP7nxzM7EhIIoMKV1jAXX1FtqU7Hkl",
+      posthogHost: "https://eu.i.posthog.com",
+      posthogDefaults: "2025-11-30",
+    },
+  },
 });
