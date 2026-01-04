@@ -1,0 +1,36 @@
+{
+  "name": "ghostsearch-landing",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test:unit": "vitest",
+    "lint": "eslint . && nuxi typecheck",
+    "lint:fix": "prettier --write --list-different . && eslint . --fix && nuxi typecheck --fix",
+    "format:check": "prettier --check .",
+    "format": "prettier --write --list-different ."
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.82",
+    "@iconify-json/simple-icons": "^1.2.64",
+    "@nuxt/content": "3.10.0",
+    "@nuxt/eslint": "1.12.1",
+    "@nuxt/hints": "1.0.0-alpha.5",
+    "@nuxt/image": "2.0.0",
+    "@nuxt/test-utils": "3.21.0",
+    "@nuxt/ui": "4.3.0",
+    "better-sqlite3": "^12.5.0",
+    "eslint": "^9.0.0",
+    "nuxt": "^4.2.2",
+    "typescript": "^5.6.3",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4"
+  }
+}

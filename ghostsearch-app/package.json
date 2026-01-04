@@ -15,6 +15,7 @@
     "format": "prettier --write --list-different ."
   },
   "dependencies": {
+    "@iconify-json/simple-icons": "^1.2.64",
     "@nuxt/content": "3.10.0",
     "@nuxt/eslint": "1.12.1",
     "@nuxt/hints": "1.0.0-alpha.5",
@@ -25,9 +26,12 @@
     "@ts-ghost/content-api": "^4.2.0",
     "@ts-ghost/core-api": "^6.2.0",
     "@unhead/vue": "^2.0.5",
+    "@unovis/ts": "^1.6.2",
+    "@unovis/vue": "^1.6.2",
     "@vueuse/nuxt": "14.1.0",
     "better-sqlite3": "^12.5.0",
     "consola": "^3.4.2",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
     "eslint": "^9.0.0",
     "nuxt": "^4.2.2",

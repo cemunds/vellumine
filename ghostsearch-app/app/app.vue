@@ -2,7 +2,7 @@
 const colorMode = useColorMode();
 
 const color = computed(() =>
-  colorMode.value === "dark" ? "#020618" : "white",
+  colorMode.value === "dark" ? "#1b1718" : "white",
 );
 
 useHead({
@@ -17,53 +17,19 @@ useHead({
   },
 });
 
+const title = "Nuxt Dashboard Template";
+const description =
+  "A professional dashboard template built with Nuxt UI, featuring multiple pages, data visualization, and comprehensive management capabilities for creating powerful admin interfaces.";
+
 useSeoMeta({
-  titleTemplate: "%s - Nuxt SaaS template",
-  ogImage: "https://ui.nuxt.com/assets/templates/nuxt/saas-light.png",
-  twitterImage: "https://ui.nuxt.com/assets/templates/nuxt/saas-light.png",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogImage: "https://ui.nuxt.com/assets/templates/nuxt/dashboard-light.png",
+  twitterImage: "https://ui.nuxt.com/assets/templates/nuxt/dashboard-light.png",
   twitterCard: "summary_large_image",
 });
-
-const { data: navigation } = await useAsyncData(
-  "navigation",
-  () => queryCollectionNavigation("docs"),
-  {
-    transform: (data) =>
-      data.find((item) => item.path === "/docs")?.children || [],
-  },
-);
-const { data: files } = useLazyAsyncData(
-  "search",
-  () => queryCollectionSearchSections("docs"),
-  {
-    server: false,
-  },
-);
-
-const links = [
-  {
-    label: "Docs",
-    icon: "i-lucide-book",
-    to: "/docs/getting-started",
-  },
-  {
-    label: "Pricing",
-    icon: "i-lucide-credit-card",
-    to: "/pricing",
-  },
-  {
-    label: "Blog",
-    icon: "i-lucide-pencil",
-    to: "/blog",
-  },
-  {
-    label: "Changelog",
-    icon: "i-lucide-history",
-    to: "/changelog",
-  },
-];
-
-provide("navigation", navigation);
 </script>
 
 <template>
@@ -73,15 +39,5 @@ provide("navigation", navigation);
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-
-    <ClientOnly>
-      <LazyUContentSearch
-        :files="files"
-        shortcut="meta_k"
-        :navigation="navigation"
-        :links="links"
-        :fuse="{ resultLimit: 42 }"
-      />
-    </ClientOnly>
   </UApp>
 </template>
