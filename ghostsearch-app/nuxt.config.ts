@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "nuxt-og-image",
     "@vueuse/nuxt",
+    "@polar-sh/nuxt",
   ],
   runtimeConfig: {
     public: {

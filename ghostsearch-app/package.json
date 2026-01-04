@@ -23,6 +23,7 @@
     "@nuxt/test-utils": "3.21.0",
     "@nuxt/ui": "4.3.0",
     "@nuxtjs/supabase": "2.0.3",
+    "@polar-sh/nuxt": "^0.5.3",
     "@ts-ghost/content-api": "^4.2.0",
     "@ts-ghost/core-api": "^6.2.0",
     "@unhead/vue": "^2.0.5",
