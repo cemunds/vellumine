@@ -77,6 +77,13 @@ export const collectionService = {
   ): Promise<TypesenseCollection[]> => {
     return await collectionRepository.getUserCollections(db, userId);
   },
+  getById: async (
+    db: DB,
+    userId: string,
+    collectionId: string,
+  ): Promise<TypesenseCollection | null> => {
+    return await collectionRepository.getById(db, userId, collectionId);
+  },
   create: async (
     db: DB,
     payload: CreateTypesenseCollection,
@@ -109,25 +116,17 @@ export const collectionService = {
 
       await typesenseClient.collections().create(collectionSchema);
 
-      const adminKeySchema = await typesenseClient.keys().create({
-        description: `Admin key for ${uuid}`,
-        actions: ["*"],
-        collections: [uuid],
-      });
-      const adminKey = adminKeySchema.value!;
-
       const searchKeySchema = await typesenseClient.keys().create({
         description: `Search-only key for ${uuid}`,
         actions: ["documents:search"],
         collections: [uuid],
       });
-      const searchKey = searchKeySchema.value!;
+      const typesenseSearchKey = searchKeySchema.value!;
 
       const newCollection = await collectionRepository.create(tx, userId, {
-        ...payload,
         id: uuid,
-        adminKey,
-        searchKey,
+        typesenseSearchKey,
+        ...payload,
       });
 
       return newCollection;
@@ -137,9 +136,27 @@ export const collectionService = {
     db: DB,
     collectionId: string,
     payload: UpdateTypesenseCollection,
-  ) => {},
+  ) => {
+    return await collectionRepository.update(db, collectionId, payload);
+  },
   delete: async (db: DB, collectionId: string) => {
     await collectionRepository.delete(db, collectionId);
+  },
+  getSyncHistory: async (db: DB, collectionId: string, limit: number) => {
+    return await collectionRepository.getSyncHistory(db, collectionId, limit);
+  },
+  setSyncStatus: async (
+    db: DB,
+    collectionId: string,
+    syncStatus: string,
+    syncError: string | null,
+  ) => {
+    await collectionRepository.setSyncStatus(
+      db,
+      collectionId,
+      syncStatus,
+      syncError,
+    );
   },
   indexDocuments: async (collectionId: string, documents: Post[]) => {},
   transformPost: (post: GhostPost): Post => {

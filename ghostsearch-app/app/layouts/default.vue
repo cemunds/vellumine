@@ -17,6 +17,14 @@ const links = [
       },
     },
     {
+      label: "Collections",
+      icon: "i-lucide-house",
+      to: "/collections",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Inbox",
       icon: "i-lucide-inbox",
       to: "/inbox",

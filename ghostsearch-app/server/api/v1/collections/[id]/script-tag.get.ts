@@ -14,16 +14,17 @@ export default defineEventHandler(async (event) => {
   const collectionId = event.context.params?.id;
 
   if (!collectionId) {
-    throw createError({ statusCode: 400, statusMessage: "Collection ID is required" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Collection ID is required",
+    });
   }
 
   try {
     // Get collection details
     const collection = await db.query.collection.findFirst({
-      where: (collection, { and, eq }) => and(
-        eq(collection.id, collectionId),
-        eq(collection.userId, user.sub)
-      ),
+      where: (collection, { and, eq }) =>
+        and(eq(collection.id, collectionId), eq(collection.userId, user.sub)),
       columns: {
         id: true,
         name: true,
@@ -32,23 +33,29 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!collection) {
-      throw createError({ statusCode: 404, statusMessage: "Collection not found" });
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Collection not found",
+      });
     }
 
     // Get query parameters
     const query = getQuery(event);
-    const theme = query.theme === 'light' || query.theme === 'dark' ? query.theme : 'system';
-    const enableHighlighting = query.enableHighlighting !== 'false';
-    const enableDidYouMean = query.enableDidYouMean !== 'false';
+    const theme =
+      query.theme === "light" || query.theme === "dark"
+        ? query.theme
+        : "system";
+    const enableHighlighting = query.enableHighlighting !== "false";
+    const enableDidYouMean = query.enableDidYouMean !== "false";
 
     // Generate script tag configuration
     const config = {
       typesenseNodes: [
         {
-          host: process.env.TYPESENSE_HOST || 'localhost',
+          host: process.env.TYPESENSE_HOST || "localhost",
           port: 8108,
-          protocol: 'http'
-        }
+          protocol: "http",
+        },
       ],
       typesenseApiKey: collection.searchKey,
       collectionName: collection.id,
@@ -59,9 +66,9 @@ export default defineEventHandler(async (event) => {
         title: { weight: 5, highlight: true },
         excerpt: { weight: 3, highlight: true },
         plaintext: { weight: 4, highlight: true },
-        'tags.name': { weight: 4, highlight: true },
-        'tags.slug': { weight: 3, highlight: true }
-      }
+        "tags.name": { weight: 4, highlight: true },
+        "tags.slug": { weight: 3, highlight: true },
+      },
     };
 
     // Generate script tag
@@ -101,13 +108,13 @@ export default defineEventHandler(async (event) => {
     return {
       scriptTag: scriptTag.trim(),
       integrationInstructions: instructions.trim(),
-      config: config
+      config: config,
     };
   } catch (error) {
     consola.error("Failed to generate script tag:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to generate script tag"
+      statusMessage: "Failed to generate script tag",
     });
   }
 });

@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import { pgTable, uuid, text, timestamp, integer } from "drizzle-orm/pg-core";
 
 // User Profile Table
@@ -21,28 +20,20 @@ export const collection = pgTable("collection", {
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  adminKey: text("admin_key").notNull(),
-  searchKey: text("search_key").notNull(),
+  typesenseSearchKey: text("search_key").notNull(),
   userId: uuid("user_id")
     .notNull()
     .references(() => profile.userId, { onDelete: "cascade" }),
-  // Ghost CMS Integration Fields
-  ghostUrl: text("ghost_url"),
-  ghostContentApiKey: text("ghost_content_api_key"),
-  ghostAdminApiKey: text("ghost_admin_api_key"),
+  ghostUrl: text("ghost_url").notNull(),
+  ghostContentApiKey: text("ghost_content_api_key").notNull(),
   webhookUrl: text("webhook_url"),
   webhookSecret: text("webhook_secret"),
   lastSyncAt: timestamp("last_sync_at"),
   syncStatus: text("sync_status").default("idle"),
   syncError: text("sync_error"),
-  postCount: integer("post_count").default(0),
-  pageCount: integer("page_count").default(0),
+  postCount: integer("post_count").notNull().default(0),
+  pageCount: integer("page_count").notNull().default(0),
 });
-
-// Relationships
-// export const userProfileRelations = relations(profile, ({ many }) => ({
-//   collections: many(collection),
-// }));
 
 // Sync History Table
 export const syncHistory = pgTable("sync_history", {

@@ -4,6 +4,12 @@ import { GhostService } from "~~/server/services/ghost";
 import { collection as collectionTable } from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
 import consola from "consola";
+import { z } from "zod";
+import { collectionService } from "~~/server/services/collection";
+
+const SyncParams = z.object({
+  collectionId: z.uuid(),
+});
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
@@ -13,55 +19,43 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { collectionId, fullSync = true } = body;
 
-  if (!collectionId) {
-    throw createError({ statusCode: 400, statusMessage: "collectionId is required" });
+  const syncParams = SyncParams.safeParse(body);
+  if (!syncParams.success) {
+    consola.log(syncParams.error);
+    throw createError({ statusCode: 400, statusMessage: "Bad Request" });
   }
+
+  const { collectionId } = syncParams.data;
 
   try {
     // Verify collection exists and belongs to user
-    const collection = await db.query.collection.findFirst({
-      where: (collection, { and, eq }) => and(
-        eq(collection.id, collectionId),
-        eq(collection.userId, user.sub)
-      ),
-      columns: {
-        id: true,
-        ghostUrl: true,
-        ghostContentApiKey: true,
-        ghostAdminApiKey: true,
-      },
-    });
+    const collection = await collectionService.getById(
+      db,
+      user.sub,
+      collectionId,
+    );
 
     if (!collection) {
-      throw createError({ statusCode: 404, statusMessage: "Collection not found" });
-    }
-
-    if (!collection.ghostUrl || !collection.ghostContentApiKey) {
       throw createError({
-        statusCode: 400,
-        statusMessage: "Collection is not configured with Ghost CMS"
+        statusCode: 404,
+        statusMessage: "Collection not found",
       });
     }
 
     // Update sync status
-    await db.update(collectionTable)
-      .set({
-        syncStatus: "syncing",
-        syncError: null,
-      })
-      .where(eq(collectionTable.id, collectionId));
+    await collectionService.setSyncStatus(db, collectionId, "syncing", null);
 
     // Create Ghost service and start sync
     const ghostService = new GhostService({
       url: collection.ghostUrl,
       contentApiKey: collection.ghostContentApiKey,
-      adminApiKey: collection.ghostAdminApiKey || undefined,
+      // adminApiKey: collection.ghostAdminApiKey || undefined,
     });
 
     // Start sync in background (don't await)
-    ghostService.syncContent(collectionId)
+    ghostService
+      .syncContent(collectionId)
       .then(() => {
         consola.success(`Sync completed for collection ${collectionId}`);
       })
@@ -80,7 +74,8 @@ export default defineEventHandler(async (event) => {
 
     // Update sync status to error
     if (collectionId) {
-      await db.update(collectionTable)
+      await db
+        .update(collectionTable)
         .set({
           syncStatus: "error",
           syncError: error instanceof Error ? error.message : "Unknown error",
@@ -90,8 +85,12 @@ export default defineEventHandler(async (event) => {
     }
 
     throw createError({
-      statusCode: error instanceof Error && error.message.includes("Collection not found") ? 404 : 500,
-      statusMessage: error instanceof Error ? error.message : "Failed to start sync"
+      statusCode:
+        error instanceof Error && error.message.includes("Collection not found")
+          ? 404
+          : 500,
+      statusMessage:
+        error instanceof Error ? error.message : "Failed to start sync",
     });
   }
 });

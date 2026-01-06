@@ -54,7 +54,7 @@ export class GhostService {
       while (hasMore) {
         const response = await this.contentClient.posts
           .browse({
-            limit: 100,
+            limit: 15,
             page,
           })
           .include({ tags: true, authors: true })
@@ -62,8 +62,12 @@ export class GhostService {
 
         if (!response.success) {
           const errors = response.errors || [];
-          const errorMessage = errors.map((e: any) => e.message || e).join(", ");
-          throw new Error(`Ghost API error: ${errorMessage || "Unknown error"}`);
+          const errorMessage = errors
+            .map((e: any) => e.message || e)
+            .join(", ");
+          throw new Error(
+            `Ghost API error: ${errorMessage || "Unknown error"}`,
+          );
         }
 
         allPosts = allPosts.concat(response.data);
@@ -96,7 +100,7 @@ export class GhostService {
       while (hasMore) {
         const response = await this.contentClient.pages
           .browse({
-            limit: 100,
+            limit: 15,
             page,
           })
           .include({ tags: true, authors: true })
@@ -104,8 +108,12 @@ export class GhostService {
 
         if (!response.success) {
           const errors = response.errors || [];
-          const errorMessage = errors.map((e: any) => e.message || e).join(", ");
-          throw new Error(`Ghost API error: ${errorMessage || "Unknown error"}`);
+          const errorMessage = errors
+            .map((e: any) => e.message || e)
+            .join(", ");
+          throw new Error(
+            `Ghost API error: ${errorMessage || "Unknown error"}`,
+          );
         }
 
         allPages = allPages.concat(response.data);
@@ -132,10 +140,13 @@ export class GhostService {
   async syncContent(collectionId: string): Promise<void> {
     try {
       // Start sync record
-      const syncRecord = await db.insert(syncHistory).values({
-        collectionId,
-        status: "started",
-      }).returning();
+      const syncRecord = await db
+        .insert(syncHistory)
+        .values({
+          collectionId,
+          status: "started",
+        })
+        .returning();
 
       const syncId = syncRecord[0].id;
 
@@ -147,7 +158,7 @@ export class GhostService {
 
       // Transform and index posts
       const postDocuments = posts.map((post: any) =>
-        collectionService.transformPost(post)
+        collectionService.transformPost(post),
       );
 
       // Transform and index pages
@@ -161,7 +172,8 @@ export class GhostService {
       await collectionService.indexDocumentsBatched(collectionId, allDocuments);
 
       // Update collection stats using direct DB update
-      await db.update(collection)
+      await db
+        .update(collection)
         .set({
           postCount: posts.length,
           pageCount: pages.length,
@@ -172,7 +184,8 @@ export class GhostService {
         .where(eq(collection.id, collectionId));
 
       // Complete sync record
-      await db.update(syncHistory)
+      await db
+        .update(syncHistory)
         .set({
           status: "completed",
           completedAt: new Date(),
@@ -188,7 +201,8 @@ export class GhostService {
       consola.error("Content sync failed:", error.message);
 
       // Update collection with error using direct DB update
-      await db.update(collection)
+      await db
+        .update(collection)
         .set({
           syncStatus: "error",
           syncError: error.message,
@@ -251,7 +265,9 @@ export class GhostService {
       if (!response.success) {
         const errors = response.errors || [];
         const errorMessage = errors.map((e: any) => e.message || e).join(", ");
-        throw new Error(`Failed to get site info: ${errorMessage || "Unknown error"}`);
+        throw new Error(
+          `Failed to get site info: ${errorMessage || "Unknown error"}`,
+        );
       }
 
       return response.data;

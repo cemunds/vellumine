@@ -11,35 +11,40 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const collections = await collectionService.getUserCollections(db, user.sub);
+    const collections = await collectionService.getUserCollections(
+      db,
+      user.sub,
+    );
 
     // Get extended collection data with Ghost CMS info
-    const extendedCollections = await Promise.all(collections.map(async (col) => {
-      const collectionData = await db.query.collection.findFirst({
-        where: (collection, { eq }) => eq(collection.id, col.id),
-        columns: {
-          id: true,
-          name: true,
-          description: true,
-          createdAt: true,
-          updatedAt: true,
-          ghostUrl: true,
-          lastSyncAt: true,
-          syncStatus: true,
-          postCount: true,
-          pageCount: true,
-        },
-      });
+    const extendedCollections = await Promise.all(
+      collections.map(async (col) => {
+        const collectionData = await db.query.collection.findFirst({
+          where: (collection, { eq }) => eq(collection.id, col.id),
+          columns: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+            ghostUrl: true,
+            lastSyncAt: true,
+            syncStatus: true,
+            postCount: true,
+            pageCount: true,
+          },
+        });
 
-      return collectionData;
-    }));
+        return collectionData;
+      }),
+    );
 
     return extendedCollections.filter(Boolean); // Filter out any null values
   } catch (error) {
     consola.error("Failed to fetch collections:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to fetch collections"
+      statusMessage: "Failed to fetch collections",
     });
   }
 });
