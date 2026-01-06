@@ -55,15 +55,12 @@ const typesenseConfig = TypesenseConfigSchema.parse({
   maxConcurrentBatches: 12,
 });
 
-consola.log("TYPESENSE_HOST", process.env.TYPESENSE_HOST)
-consola.log("TYPESENSE_ADMIN_KEY", process.env.TYPESENSE_ADMIN_KEY)
-
 const typesenseClient = new Typesense.Client({
   nodes: [
     {
+      protocol: process.env.TYPESENSE_PROTOCOL!,
       host: process.env.TYPESENSE_HOST!,
-      port: 443,
-      protocol: "https",
+      port: parseInt(process.env.TYPESENSE_PORT!),
     },
   ],
   apiKey: process.env.TYPESENSE_ADMIN_KEY!,
