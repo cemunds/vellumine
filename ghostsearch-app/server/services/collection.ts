@@ -4,6 +4,7 @@ import { DB } from "../db";
 import { collectionRepository } from "../db/repositories/collection";
 import Typesense from "typesense";
 import { z } from "zod";
+import consola from "consola";
 
 export interface Post {
   id: string;
@@ -54,12 +55,15 @@ const typesenseConfig = TypesenseConfigSchema.parse({
   maxConcurrentBatches: 12,
 });
 
+consola.log("TYPESENSE_HOST", process.env.TYPESENSE_HOST)
+consola.log("TYPESENSE_ADMIN_KEY", process.env.TYPESENSE_ADMIN_KEY)
+
 const typesenseClient = new Typesense.Client({
   nodes: [
     {
       host: process.env.TYPESENSE_HOST!,
       port: 8108,
-      protocol: process.env.VERCEL_ENV === "production" ? "https" : "http",
+      protocol: "https",
     },
   ],
   apiKey: process.env.TYPESENSE_ADMIN_KEY!,
