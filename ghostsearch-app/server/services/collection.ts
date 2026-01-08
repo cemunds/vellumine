@@ -98,23 +98,45 @@ export const collectionService = {
       const collectionSchema: CollectionCreateSchema = {
         name: uuid,
         fields: [
-          // { name: "id", type: "string", index: true },
-          { name: "title", type: "string", index: true, sort: true },
-          { name: "slug", type: "string", index: true },
-          { name: "html", type: "string", index: true },
-          { name: "plaintext", type: "string", index: true },
-          { name: "excerpt", type: "string", index: true },
+          { name: "id", type: "string", optional: false },
+          {
+            name: "title",
+            type: "string",
+            index: true,
+            sort: true,
+            optional: false,
+          },
+          { name: "url", type: "string", index: true, optional: false },
+          { name: "slug", type: "string", index: true, optional: false },
+          { name: "html", type: "string", index: true, optional: false },
+          { name: "plaintext", type: "string", index: true, optional: false },
+          { name: "excerpt", type: "string", index: true, optional: false },
           {
             name: "feature_image",
             type: "string",
             index: false,
             optional: true,
           },
-          { name: "published_at", type: "int64", sort: true },
-          { name: "updated_at", type: "int64", sort: true },
+          { name: "published_at", type: "int64", sort: true, optional: false },
+          { name: "updated_at", type: "int64", sort: true, optional: false },
           { name: "tags", type: "string[]", facet: true, optional: true },
+          {
+            name: "tags.name",
+            type: "string[]",
+            index: true,
+            facet: true,
+            optional: true,
+          },
+          {
+            name: "tags.slug",
+            type: "string[]",
+            index: true,
+            facet: true,
+            optional: true,
+          },
           { name: "authors", type: "string[]", facet: true, optional: true },
         ],
+        enable_nested_fields: true,
       };
 
       await typesenseClient.collections().create(collectionSchema);
@@ -143,7 +165,20 @@ export const collectionService = {
     return await collectionRepository.update(db, collectionId, payload);
   },
   delete: async (db: DB, collectionId: string) => {
-    await collectionRepository.delete(db, collectionId);
+    const exists = await typesenseClient.collections(collectionId).exists();
+    if (!exists) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Collection not found",
+      });
+    }
+
+    await db.transaction(async (tx) => {
+      await collectionRepository.delete(db, collectionId);
+      await typesenseClient.collections(collectionId).delete();
+    });
+
+    return collectionId;
   },
   getSyncHistory: async (db: DB, collectionId: string, limit: number) => {
     return await collectionRepository.getSyncHistory(db, collectionId, limit);
