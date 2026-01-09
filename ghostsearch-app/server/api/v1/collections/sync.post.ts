@@ -48,9 +48,9 @@ export default defineEventHandler(async (event) => {
 
     // Create Ghost service and start sync
     const ghostService = new GhostService({
-      url: collection.ghostUrl,
-      contentApiKey: collection.ghostContentApiKey,
-      // adminApiKey: collection.ghostAdminApiKey || undefined,
+      siteUrl: collection.ghostSiteUrl,
+      adminUrl: collection.ghostAdminUrl,
+      adminApiKey: collection.ghostAdminApiKey,
     });
 
     // Start sync in background (don't await)

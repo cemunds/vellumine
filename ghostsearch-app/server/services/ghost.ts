@@ -1,42 +1,43 @@
-import { TSGhostContentAPI } from "@ts-ghost/content-api";
+import * as GhostAdminAPI from "@tryghost/admin-api";
 import consola from "consola";
-import { createError } from "h3";
 import { collectionService, Document } from "./collection";
 import { db } from "../db";
 import { collectionRepository } from "../db/repositories/collection";
 import { syncHistory, collection } from "../db/schema";
 import { eq } from "drizzle-orm";
+import * as jwt from "jsonwebtoken";
+import { JwksClient } from "jwks-rsa";
 import { Post } from "@ts-ghost/content-api";
 
 interface GhostServiceConfig {
-  url: string;
-  contentApiKey: string;
-  adminApiKey?: string;
+  siteUrl: string;
+  adminUrl: string;
+  adminApiKey: string;
 }
 
 export class GhostService {
   private config: GhostServiceConfig;
-  private contentClient: TSGhostContentAPI;
+  private ghostClient: ReturnType<typeof GhostAdminAPI>;
 
   constructor(config: GhostServiceConfig) {
     this.config = config;
-    this.contentClient = new TSGhostContentAPI(
-      config.url,
-      config.contentApiKey,
-      "v5.0" as const,
-    );
+    const GhostAdminAPINew = require("@tryghost/admin-api");
+
+    this.ghostClient = new GhostAdminAPINew({
+      url: config.adminUrl,
+      key: config.adminApiKey,
+      version: "v6.0" as const,
+    });
   }
 
   /**
    * Validate Ghost Content API key by making a test request
    */
-  async validateContentApiKey(): Promise<boolean> {
+  async validateApiKey(): Promise<boolean> {
     try {
-      const response = await this.contentClient.posts
-        .browse({ limit: 1 })
-        .fetch();
+      const response = await this.ghostClient.posts.browse({ limit: 1 });
 
-      return response.success;
+      return true;
     } catch (error: any) {
       consola.error("Ghost API validation failed:", error.message);
       return false;
@@ -53,25 +54,23 @@ export class GhostService {
 
     try {
       while (hasMore) {
-        const response = await this.contentClient.posts
-          .browse({
-            limit: 15,
-            page,
-          })
-          .include({ tags: true, authors: true })
-          .fetch();
+        const response = await this.ghostClient.posts.browse({
+          limit: 15,
+          page,
+          include: ["tags", "authors"],
+        });
 
-        if (!response.success) {
-          const errors = response.errors || [];
-          const errorMessage = errors
-            .map((e: any) => e.message || e)
-            .join(", ");
-          throw new Error(
-            `Ghost API error: ${errorMessage || "Unknown error"}`,
-          );
-        }
+        // if (!response.success) {
+        //   const errors = response.errors || [];
+        //   const errorMessage = errors
+        //     .map((e: any) => e.message || e)
+        //     .join(", ");
+        //   throw new Error(
+        //     `Ghost API error: ${errorMessage || "Unknown error"}`,
+        //   );
+        // }
 
-        allPosts = allPosts.concat(response.data);
+        allPosts = allPosts.concat(response);
 
         const total = response.meta.pagination.total;
         const limit = response.meta.pagination.limit as number;
@@ -99,25 +98,23 @@ export class GhostService {
 
     try {
       while (hasMore) {
-        const response = await this.contentClient.pages
-          .browse({
-            limit: 15,
-            page,
-          })
-          .include({ tags: true, authors: true })
-          .fetch();
+        const response = await this.ghostClient.pages.browse({
+          limit: 15,
+          page,
+          include: ["tags", "authors"],
+        });
 
-        if (!response.success) {
-          const errors = response.errors || [];
-          const errorMessage = errors
-            .map((e: any) => e.message || e)
-            .join(", ");
-          throw new Error(
-            `Ghost API error: ${errorMessage || "Unknown error"}`,
-          );
-        }
+        // if (!response.success) {
+        //   const errors = response.errors || [];
+        //   const errorMessage = errors
+        //     .map((e: any) => e.message || e)
+        //     .join(", ");
+        //   throw new Error(
+        //     `Ghost API error: ${errorMessage || "Unknown error"}`,
+        //   );
+        // }
 
-        allPages = allPages.concat(response.data);
+        allPages = allPages.concat(response);
 
         const total = response.meta.pagination.total;
         const limit = response.meta.pagination.limit as number;
@@ -136,33 +133,106 @@ export class GhostService {
   }
 
   async fetchPost(postId: string) {
-    const post = await this.contentClient.posts
-      .read({
-        id: postId,
-      })
-      .include({ tags: true, authors: true })
-      .fetch();
+    try {
+      const post = await this.ghostClient.posts.read(
+        {
+          id: postId,
+        },
+        { include: ["tags", "authors"] },
+      );
 
-    if (!post.success) {
-      throw new Error(`Failed to fetch post ${postId} from Ghost`);
+      return post;
+    } catch (error: any) {
+      consola.error("Failed to fetch post:", error.message);
+      throw new Error(`Failed to fetch post: ${error.message}`);
     }
 
-    return post.data;
+    // if (!post.success) {
+    //   throw new Error(`Failed to fetch post ${postId} from Ghost`);
+    // }
   }
 
   async fetchPage(pageId: string) {
-    const page = await this.contentClient.pages
-      .read({
-        id: pageId,
-      })
-      .include({ tags: true, authors: true })
-      .fetch();
+    try {
+      const page = await this.ghostClient.pages.read(
+        {
+          id: pageId,
+        },
+        { include: ["tags", "authors"] },
+      );
 
-    if (!page.success) {
-      throw new Error(`Failed to fetch page ${pageId} from Ghost`);
+      // if (!page.success) {
+      //   throw new Error(`Failed to fetch page ${pageId} from Ghost`);
+      // }
+
+      return page;
+    } catch (error: any) {
+      consola.error("Failed to fetch page:", error.message);
+      throw new Error(`Failed to fetch page: ${error.message}`);
+    }
+  }
+
+  async fetchMember(memberId: string) {
+    try {
+      const member = await this.ghostClient.members.read({
+        id: memberId,
+      });
+
+      // if (!member.success) {
+      //   throw new Error(`Failed to fetch member ${memberId} from Ghost`);
+      // }
+
+      return member;
+    } catch (error: any) {
+      consola.error("Failed to fetch member:", error.message);
+      throw new Error(`Failed to fetch member: ${error.message}`);
+    }
+  }
+
+  async verifyJWT(token: string, params: { ignoreExpiration: boolean }) {
+    const { ignoreExpiration = false } = params;
+    const jwksUri = `${this.config.siteUrl}/members/.well-known/jwks.json`;
+    const jwksClient = new JwksClient({
+      jwksUri,
+    });
+
+    const decoded = jwt.decode(token, { complete: true });
+
+    if (!decoded) {
+      throw new Error("Could not decode JWT");
     }
 
-    return page.data;
+    const { payload, header, signature } = decoded;
+
+    const key = await jwksClient.getSigningKey(header.kid);
+
+    if (!key) {
+      throw new Error("Could not fetch signing key");
+    }
+
+    try {
+      jwt.verify(token, key.getPublicKey(), { ignoreExpiration });
+    } catch (err) {
+      throw new Error(`Could not verify JWT: ${err}`);
+    }
+
+    const email = payload!.sub as string;
+
+    try {
+      const member = await this.ghostClient.members.browse({
+        limit: 1,
+        filter: `email:${email}`,
+      });
+
+      return member[0];
+    } catch (error: any) {
+      consola.error("Failed to fetch member:", error.message);
+      throw new Error(`Failed to fetch member: ${error.message}`);
+    }
+
+    // if (!member.success) {
+    //   throw new Error(`Failed to fetch member with e-mail ${email} from Ghost`);
+    // }
   }
 
   /**
@@ -288,25 +358,25 @@ export class GhostService {
   /**
    * Get Ghost site information
    */
-  async getSiteInfo(): Promise<any> {
-    try {
-      // Use settings endpoint as an alternative to site endpoint
-      const response = await this.contentClient.settings.fetch();
+  // async getSiteInfo(): Promise<any> {
+  //   try {
+  //     // Use settings endpoint as an alternative to site endpoint
+  //     const response = await this.ghostClient.settings.fetch();
 
-      if (!response.success) {
-        const errors = response.errors || [];
-        const errorMessage = errors.map((e: any) => e.message || e).join(", ");
-        throw new Error(
-          `Failed to get site info: ${errorMessage || "Unknown error"}`,
-        );
-      }
+  //     if (!response.success) {
+  //       const errors = response.errors || [];
+  //       const errorMessage = errors.map((e: any) => e.message || e).join(", ");
+  //       throw new Error(
+  //         `Failed to get site info: ${errorMessage || "Unknown error"}`,
+  //       );
+  //     }
 
-      return response.data;
-    } catch (error: any) {
-      consola.error("Failed to get site info:", error.message);
-      throw new Error(`Failed to get site info: ${error.message}`);
-    }
-  }
+  //     return response.data;
+  //   } catch (error: any) {
+  //     consola.error("Failed to get site info:", error.message);
+  //     throw new Error(`Failed to get site info: ${error.message}`);
+  //   }
+  // }
 }
 
 type IndexedPostFields = Pick<

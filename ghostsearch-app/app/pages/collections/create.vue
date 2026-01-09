@@ -8,8 +8,8 @@ const router = useRouter();
 const form = ref({
   name: "",
   description: "",
-  ghostUrl: "",
-  ghostContentApiKey: "",
+  ghostSiteUrl: "",
+  ghostAdminUrl: "",
   ghostAdminApiKey: "",
 });
 
@@ -36,14 +36,13 @@ async function createCollection() {
     return;
   }
 
-  if (form.value.ghostUrl && !validateGhostUrl(form.value.ghostUrl)) {
+  if (form.value.ghostSiteUrl && !validateGhostUrl(form.value.ghostSiteUrl)) {
     error.value = "Please enter a valid Ghost URL (http:// or https://)";
     return;
   }
 
-  if (form.value.ghostUrl && !form.value.ghostContentApiKey.trim()) {
-    error.value =
-      "Ghost Content API key is required when Ghost URL is provided";
+  if (form.value.ghostSiteUrl && !form.value.ghostAdminApiKey.trim()) {
+    error.value = "Ghost Admin API key is required when Ghost URL is provided";
     return;
   }
 
@@ -56,8 +55,8 @@ async function createCollection() {
       body: {
         name: form.value.name,
         description: form.value.description,
-        ghostUrl: form.value.ghostUrl,
-        ghostContentApiKey: form.value.ghostContentApiKey,
+        ghostSiteUrl: form.value.ghostSiteUrl,
+        ghostAdminUrl: form.value.ghostAdminUrl,
         ghostAdminApiKey: form.value.ghostAdminApiKey,
       },
     });
@@ -189,23 +188,22 @@ const ghostApiKeyInstructions = `
                 hint="e.g., https://your-blog.com"
               >
                 <UInput
-                  v-model="form.ghostUrl"
+                  v-model="form.ghostSiteUrl"
                   placeholder="https://your-blog.com"
                 />
               </UFormField>
 
-              <UFormField label="Ghost Content API Key" required>
+              <UFormField
+                label="Ghost Admin URL"
+                hint="e.g., https://admin.your-blog.com"
+              >
                 <UInput
-                  v-model="form.ghostContentApiKey"
-                  type="password"
-                  placeholder="Content API Key"
+                  v-model="form.ghostAdminUrl"
+                  placeholder="https://admin.your-blog.com"
                 />
               </UFormField>
 
-              <UFormField
-                label="Ghost Admin API Key (Optional)"
-                hint="Required for automatic webhook setup"
-              >
+              <UFormField label="Ghost Admin API Key" required>
                 <UInput
                   v-model="form.ghostAdminApiKey"
                   type="password"

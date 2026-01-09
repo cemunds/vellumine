@@ -4,8 +4,9 @@ export const TypesenseCollection = z.object({
   id: z.uuid(),
   name: z.string().nonempty(),
   description: z.string().nullable(),
-  ghostUrl: z.url().nonempty(),
-  ghostContentApiKey: z.string().min(1, "Content API key is required"),
+  ghostSiteUrl: z.url().nonempty(),
+  ghostAdminUrl: z.url().nonempty(),
+  ghostAdminApiKey: z.string().min(1, "Content API key is required"),
   typesenseSearchKey: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -20,14 +21,15 @@ export const TypesenseCollection = z.object({
 export const CreateTypesenseCollection = TypesenseCollection.pick({
   name: true,
   description: true,
-  ghostUrl: true,
-  ghostContentApiKey: true,
+  ghostSiteUrl: true,
+  ghostAdminUrl: true,
+  ghostAdminApiKey: true,
   webhookSecret: true,
 });
 
 export const UpdateTypesenseCollection = TypesenseCollection.pick({
   name: true,
   description: true,
-  ghostContentApiKey: true,
+  ghostAdminApiKey: true,
   typesenseSearchKey: true,
 }).partial();

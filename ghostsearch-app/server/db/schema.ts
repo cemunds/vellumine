@@ -24,8 +24,9 @@ export const collection = pgTable("collection", {
   userId: uuid("user_id")
     .notNull()
     .references(() => profile.userId, { onDelete: "cascade" }),
-  ghostUrl: text("ghost_url").notNull(),
-  ghostContentApiKey: text("ghost_content_api_key").notNull(),
+  ghostSiteUrl: text("ghost_site_url").notNull(),
+  ghostAdminUrl: text("ghost_admin_url").notNull(),
+  ghostAdminApiKey: text("ghost_admin_api_key").notNull(),
   webhookSecret: text("webhook_secret").notNull(),
   lastSyncAt: timestamp("last_sync_at"),
   syncStatus: text("sync_status").default("idle"),

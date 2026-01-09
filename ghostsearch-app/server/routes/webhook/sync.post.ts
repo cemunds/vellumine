@@ -46,6 +46,7 @@ const WebhookSchema = z.object({
   }),
 });
 
+// TODO: Unify naming of 'secret' and 'webhookSecret'
 interface QueryParams {
   secret: string;
   collectionId: string;
@@ -97,7 +98,7 @@ export default defineEventHandler(async (event) => {
     // Initialize manager
     // const manager = new GhostTypesenseManager(config);
     const ghostService = new GhostService({
-      url: collection.ghostUrl,
+      siteUrl: collection.ghostSiteUrl,
       contentApiKey: collection.ghostContentApiKey,
     });
     console.log("🔄 Typesense manager initialized");
@@ -131,13 +132,14 @@ export default defineEventHandler(async (event) => {
       if (status === "published" && visibility === "public") {
         console.log("📝 Indexing published post");
         const ghostService = new GhostService({
-          url: collection.ghostUrl,
+          siteUrl: collection.ghostSiteUrl,
           contentApiKey: collection.ghostContentApiKey,
         });
 
         const newPost = await ghostService.fetchPost(post.current.id);
         const transformed = transformPost(newPost);
         await collectionService.indexPost(collectionId, transformed);
+        // TODO: Update collection statistics
         console.log("✨ Post indexed successfully");
         return {
           statusCode: 200,

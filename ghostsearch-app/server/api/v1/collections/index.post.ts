@@ -12,8 +12,9 @@ import { randomBytes } from "crypto";
 const CreateCollectionDTO = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable(),
-  ghostUrl: z.url().nonempty(),
-  ghostContentApiKey: z.string().min(1, "Content API key is required"),
+  ghostSiteUrl: z.url().nonempty(),
+  ghostAdminUrl: z.url().nonempty(),
+  ghostAdminApiKey: z.string().min(1, "Content API key is required"),
 });
 
 export default defineEventHandler(async (event) => {
@@ -33,15 +34,15 @@ export default defineEventHandler(async (event) => {
   consola.log("Parsed collection request");
 
   // Validate Ghost CMS configuration if provided
-  if (collection.data.ghostUrl && collection.data.ghostContentApiKey) {
+  if (collection.data.ghostSiteUrl && collection.data.ghostAdminApiKey) {
     const ghostService = new GhostService({
-      url: collection.data.ghostUrl,
-      contentApiKey: collection.data.ghostContentApiKey,
-      // adminApiKey: collection.data.ghostAdminApiKey,
+      siteUrl: collection.data.ghostSiteUrl,
+      adminUrl: collection.data.ghostAdminUrl,
+      adminApiKey: collection.data.ghostAdminApiKey,
     });
 
     consola.log("Validating Ghost Content API key");
-    const isValid = await ghostService.validateContentApiKey();
+    const isValid = await ghostService.validateApiKey();
     if (!isValid) {
       throw createError({
         statusCode: 400,

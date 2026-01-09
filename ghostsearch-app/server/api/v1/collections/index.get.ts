@@ -17,29 +17,29 @@ export default defineEventHandler(async (event) => {
     );
 
     // Get extended collection data with Ghost CMS info
-    const extendedCollections = await Promise.all(
-      collections.map(async (col) => {
-        const collectionData = await db.query.collection.findFirst({
-          where: (collection, { eq }) => eq(collection.id, col.id),
-          columns: {
-            id: true,
-            name: true,
-            description: true,
-            createdAt: true,
-            updatedAt: true,
-            ghostUrl: true,
-            lastSyncAt: true,
-            syncStatus: true,
-            postCount: true,
-            pageCount: true,
-          },
-        });
+    // const extendedCollections = await Promise.all(
+    //   collections.map(async (col) => {
+    //     const collectionData = await db.query.collection.findFirst({
+    //       where: (collection, { eq }) => eq(collection.id, col.id),
+    //       columns: {
+    //         id: true,
+    //         name: true,
+    //         description: true,
+    //         createdAt: true,
+    //         updatedAt: true,
+    //         ghostUrl: true,
+    //         lastSyncAt: true,
+    //         syncStatus: true,
+    //         postCount: true,
+    //         pageCount: true,
+    //       },
+    //     });
 
-        return collectionData;
-      }),
-    );
+    //     return collectionData;
+    //   }),
+    // );
 
-    return extendedCollections.filter(Boolean); // Filter out any null values
+    return collections;
   } catch (error) {
     consola.error("Failed to fetch collections:", error);
     throw createError({
