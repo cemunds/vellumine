@@ -17,9 +17,10 @@ export default {
   },
   input: 'src/search.js',
   output: {
-    file: 'dist/search.min.js',
+    // file: 'dist/search.min.js',
+    file: 'dist/search.js',
     format: 'iife',
-    name: 'MagicPagesSearch',
+    name: 'VellumineSearch',
     inlineDynamicImports: true,
     generatedCode: {
       preset: 'es2015',
@@ -43,28 +44,28 @@ export default {
       include: /node_modules/,
       transformMixedEsModules: true
     }),
-    terser({
-      ecma: 2020,
-      module: true,
-      format: {
-        comments: false
-      },
-      compress: {
-        passes: 3,
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        unsafe: true,
-        unsafe_math: true,
-        toplevel: true
-      },
-      mangle: {
-        toplevel: true,
-        properties: {
-          regex: /^_/
-        }
-      }
-    }),
+    // terser({
+    //   ecma: 2020,
+    //   module: true,
+    //   format: {
+    //     comments: false
+    //   },
+    //   compress: {
+    //     passes: 3,
+    //     drop_console: true,
+    //     drop_debugger: true,
+    //     pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+    //     unsafe: true,
+    //     unsafe_math: true,
+    //     toplevel: true
+    //   },
+    //   mangle: {
+    //     toplevel: true,
+    //     properties: {
+    //       regex: /^_/
+    //     }
+    //   }
+    // }),
     visualizer({
       filename: 'stats.html',
       open: true

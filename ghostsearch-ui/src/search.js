@@ -53,7 +53,7 @@ import Typesense from 'typesense';
   const CSS_PREFIX = 'mp-search';
 
   // Web Component Definition
-  class MagicPagesSearchElement extends HTMLElement {
+  class VellumineSearchElement extends HTMLElement {
     constructor() {
       super();
 
@@ -91,7 +91,7 @@ import Typesense from 'typesense';
         return;
       }
 
-      const defaultConfig = window.__MP_SEARCH_CONFIG__ || {
+      const defaultConfig = Object.assign({
         typesenseNodes: [{
           host: 'localhost',
           port: '8108',
@@ -110,7 +110,7 @@ import Typesense from 'typesense';
           'tags.name': { weight: 4, highlight: true },
           'tags.slug': { weight: 3, highlight: true }
         }
-      };
+      }, window.__MP_SEARCH_CONFIG__);
 
       this.config = {
         ...defaultConfig,
@@ -118,7 +118,7 @@ import Typesense from 'typesense';
       };
 
       if (!this.config.typesenseNodes || !this.config.typesenseApiKey || !this.config.collectionName) {
-        throw new Error('MagicPagesSearch: Missing required Typesense configuration');
+        throw new Error('VellumineSearch: Missing required Typesense configuration');
       }
 
       // Merge i18n with defaults (supports partial overrides)
@@ -536,6 +536,7 @@ import Typesense from 'typesense';
                             aria-label="${title.replace(/<[^>]*>/g, '')}">
                             <article class="${CSS_PREFIX}-result-item" role="article">
                                 <h3 class="${CSS_PREFIX}-result-title" role="heading" aria-level="3">${title}</h3>
+                                <span>Paid</span>
                                 <p class="${CSS_PREFIX}-result-excerpt" aria-label="${this.t('ariaArticleExcerpt')}">${excerpt}</p>
                             </article>
                         </a>
@@ -723,12 +724,12 @@ import Typesense from 'typesense';
   }
 
   // Define custom element
-  if (!customElements.get('magicpages-search')) {
-    customElements.define('magicpages-search', MagicPagesSearchElement);
+  if (!customElements.get('vellumine-search')) {
+    customElements.define('vellumine-search', VellumineSearchElement);
   }
 
   // Export to window for backwards compatibility
-  window.MagicPagesSearch = MagicPagesSearchElement;
+  window.VellumineSearch = VellumineSearchElement;
 
   // Auto-initialize function
   function initializeSearch() {
@@ -736,18 +737,18 @@ import Typesense from 'typesense';
     const searchParams = new URLSearchParams(window.location.search);
     const hasSearchParam = searchParams.has('s') || searchParams.has('q');
 
-    if (!window.magicPagesSearch && (
+    if (!window.vellumineSearch && (
       window.__MP_SEARCH_CONFIG__ ||
       window.location.hash === '#/search' ||
       hasSearchParam ||
       document.querySelectorAll('[data-ghost-search]').length > 0
     )) {
       // Create and append the web component
-      const searchElement = document.createElement('magicpages-search');
+      const searchElement = document.createElement('vellumine-search');
       document.body.appendChild(searchElement);
 
       // Store reference for backwards compatibility
-      window.magicPagesSearch = searchElement;
+      window.vellumineSearch = searchElement;
 
       // Only after successful initialization, start cleaning up Ghost's search
       setupCleanup();
