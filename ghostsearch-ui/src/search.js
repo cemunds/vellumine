@@ -536,7 +536,7 @@ import Typesense from 'typesense';
                             aria-label="${title.replace(/<[^>]*>/g, '')}">
                             <article class="${CSS_PREFIX}-result-item" role="article">
                                 <h3 class="${CSS_PREFIX}-result-title" role="heading" aria-level="3">${title}</h3>
-                                <span>Paid</span>
+                                <p class="${CSS_PREFIX}-result-badge">Paid</p>
                                 <p class="${CSS_PREFIX}-result-excerpt" aria-label="${this.t('ariaArticleExcerpt')}">${excerpt}</p>
                             </article>
                         </a>

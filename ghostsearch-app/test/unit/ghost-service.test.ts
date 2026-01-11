@@ -30,7 +30,7 @@ it("should only fetch published posts", async () => {
   // console.log(posts)
 
   expect(posts.length).toBeGreaterThan(0);
-  expect(posts.filter((p) => p.status !== "published")).toHaveLength(0)
+  expect(posts.filter((p) => p.status !== "published")).toHaveLength(0);
 });
 
 it("should only fetch published pages", async () => {
@@ -45,7 +45,7 @@ it("should only fetch published pages", async () => {
   // console.log(pages)
 
   expect(pages.length).toBeGreaterThan(0);
-  expect(pages.filter((p) => p.status !== "published")).toHaveLength(0)
+  expect(pages.filter((p) => p.status !== "published")).toHaveLength(0);
 });
 
 it("should fetch a post by id", async () => {
@@ -56,7 +56,8 @@ it("should fetch a post by id", async () => {
       "69578b195411b50001d51c80:d5c2879fe8f9d91f05ec41f37f07a5dc6383eccb610e54d9a101ef5a532e93bc",
   });
 
-  const post = await ghostService.fetchPost("69500f693b02c70001ed6504");
+  const post = await ghostService.fetchPost("69567a5d1c83980001389a5f");
+  console.log(post);
 
   expect(post.title).toBe("Coming soon");
 });

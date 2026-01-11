@@ -420,6 +420,21 @@
   transition: color var(--transition-base);
 }
 
+.mp-search-result-badge {
+  display: inline-block;
+  padding: calc(0.25 * var(--mp-rem)) calc(0.5 * var(--mp-rem));
+  font-size: calc(0.75 * var(--mp-rem));
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: calc(0.375 * var(--mp-rem));
+  background-color: var(--accent-color);
+  color: var(--color-surface);
+  margin-left: calc(0.5 * var(--mp-rem));
+}
+
 .mp-search-result-excerpt {
   color: var(--color-text-secondary);
   font-size: calc(0.9375 * var(--mp-rem));

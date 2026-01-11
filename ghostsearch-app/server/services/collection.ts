@@ -84,8 +84,16 @@ export const collectionService = {
   ): Promise<TypesenseCollection | null> => {
     return await collectionRepository.getById(db, userId, collectionId);
   },
-  getWithWebhookSecret: async (db: DB, webhookSecret: string, collectionId: string) => {
-    return await collectionRepository.getWithWebhookSecret(db, webhookSecret, collectionId);
+  getWithWebhookSecret: async (
+    db: DB,
+    webhookSecret: string,
+    collectionId: string,
+  ) => {
+    return await collectionRepository.getWithWebhookSecret(
+      db,
+      webhookSecret,
+      collectionId,
+    );
   },
   create: async (
     db: DB,
@@ -135,6 +143,8 @@ export const collectionService = {
             optional: true,
           },
           { name: "authors", type: "string[]", facet: true, optional: true },
+          // visibility can be 'public', 'members', 'paid'
+          // { name: "visibility", type: "string" }
         ],
         enable_nested_fields: true,
       };
@@ -195,6 +205,27 @@ export const collectionService = {
       syncStatus,
       syncError,
     );
+  },
+  createScopedSearchKey: async (
+    db: DB,
+    userId: string,
+    collectionId: string,
+  ) => {
+    const collection = await collectionRepository.getById(
+      db,
+      userId,
+      collectionId,
+    );
+
+    if (!collection) {
+      return null;
+    }
+
+    const scopedSearchKey = await typesenseClient
+      .keys()
+      .generateScopedSearchKey(collection.typesenseSearchKey, {});
+
+    return scopedSearchKey;
   },
   indexDocuments: async (collectionId: string, documents: Document[]) => {
     const batchSize = typesenseConfig.batchSize || 200;

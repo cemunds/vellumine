@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
     const ghostService = await GhostService.create({
       siteUrl: collection.ghostSiteUrl,
       adminUrl: collection.ghostAdminUrl,
-      adminApiKey: collection.ghostAdminApiKey
+      adminApiKey: collection.ghostAdminApiKey,
     });
     console.log("🔄 Typesense manager initialized");
 
@@ -134,7 +134,7 @@ export default defineEventHandler(async (event) => {
         const ghostService = await GhostService.create({
           siteUrl: collection.ghostSiteUrl,
           adminUrl: collection.ghostAdminUrl,
-          adminApiKey: collection.ghostAdminApiKey
+          adminApiKey: collection.ghostAdminApiKey,
         });
 
         const newPost = await ghostService.fetchPost(post.current.id);

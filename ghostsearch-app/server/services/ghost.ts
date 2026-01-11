@@ -21,13 +21,13 @@ export class GhostService {
 
   private constructor() {
     // @ts-expect-error
-    this.config = null
+    this.config = null;
     // @ts-expect-error
-    this.ghostClient = null
+    this.ghostClient = null;
   }
 
   static async create(config: GhostServiceConfig) {
-    const ghostService = new GhostService()
+    const ghostService = new GhostService();
     ghostService.config = config;
     const GhostAdminAPINew = (await import("@tryghost/admin-api")).default;
 
@@ -37,7 +37,7 @@ export class GhostService {
       version: "v6.0" as const,
     });
 
-    return ghostService
+    return ghostService;
   }
 
   /**
