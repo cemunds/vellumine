@@ -6,101 +6,142 @@ const toast = useToast();
 
 const open = ref(false);
 
-const links = [
-  [
-    {
-      label: "Home",
-      icon: "i-lucide-house",
-      to: "/",
-      onSelect: () => {
-        open.value = false;
-      },
-    },
-    {
-      label: "Collections",
-      icon: "i-lucide-house",
-      to: "/collections",
-      onSelect: () => {
-        open.value = false;
-      },
-    },
-    {
-      label: "Inbox",
-      icon: "i-lucide-inbox",
-      to: "/inbox",
-      badge: "4",
-      onSelect: () => {
-        open.value = false;
-      },
-    },
-    {
-      label: "Customers",
-      icon: "i-lucide-users",
-      to: "/customers",
-      onSelect: () => {
-        open.value = false;
-      },
-    },
-    {
-      label: "Settings",
-      to: "/settings",
-      icon: "i-lucide-settings",
-      defaultOpen: true,
-      type: "trigger",
-      children: [
+const { activeCollection } = storeToRefs(useActiveCollectionStore());
+
+const resolvePath = (path: string) => {
+  return `/collections/${activeCollection.value.id}/${path}`;
+};
+
+const links = computed(
+  () =>
+    [
+      [
         {
-          label: "General",
-          to: "/settings",
-          exact: true,
+          label: "Home",
+          icon: "i-lucide-house",
+          to: resolvePath(""),
           onSelect: () => {
             open.value = false;
           },
         },
         {
-          label: "Members",
-          to: "/settings/members",
+          label: "Analytics",
+          icon: "i-lucide-chart-no-axes-combined",
+          to: resolvePath("analytics"),
           onSelect: () => {
             open.value = false;
           },
         },
         {
-          label: "Notifications",
-          to: "/settings/notifications",
+          label: "Synonyms",
+          to: resolvePath("synonyms"),
+          icon: "i-lucide-arrow-right-left",
           onSelect: () => {
             open.value = false;
           },
         },
         {
-          label: "Security",
-          to: "/settings/security",
+          label: "Stopwords",
+          to: resolvePath("stopwords"),
+          icon: "i-lucide-circle-slash",
           onSelect: () => {
             open.value = false;
           },
+        },
+        {
+          label: "Settings",
+          to: resolvePath("settings"),
+          icon: "i-lucide-settings",
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+        // {
+        //   label: "Collections",
+        //   icon: "i-lucide-house",
+        //   to: "/collections",
+        //   onSelect: () => {
+        //     open.value = false;
+        //   },
+        // },
+        // {
+        //   label: "Inbox",
+        //   icon: "i-lucide-inbox",
+        //   to: "/inbox",
+        //   badge: "4",
+        //   onSelect: () => {
+        //     open.value = false;
+        //   },
+        // },
+        // {
+        //   label: "Customers",
+        //   icon: "i-lucide-users",
+        //   to: "/customers",
+        //   onSelect: () => {
+        //     open.value = false;
+        //   },
+        // },
+        // {
+        //   label: "Settings",
+        //   to: "/settings",
+        //   icon: "i-lucide-settings",
+        //   defaultOpen: true,
+        //   type: "trigger",
+        //   children: [
+        //     {
+        //       label: "General",
+        //       to: "/settings",
+        //       exact: true,
+        //       onSelect: () => {
+        //         open.value = false;
+        //       },
+        //     },
+        //     {
+        //       label: "Members",
+        //       to: "/settings/members",
+        //       onSelect: () => {
+        //         open.value = false;
+        //       },
+        //     },
+        //     {
+        //       label: "Notifications",
+        //       to: "/settings/notifications",
+        //       onSelect: () => {
+        //         open.value = false;
+        //       },
+        //     },
+        //     {
+        //       label: "Security",
+        //       to: "/settings/security",
+        //       onSelect: () => {
+        //         open.value = false;
+        //       },
+        //     },
+        //   ],
+        // },
+      ],
+      [
+        {
+          label: "Feedback",
+          icon: "i-lucide-message-circle",
+          to: "https://github.com/nuxt-ui-templates/dashboard",
+          target: "_blank",
+        },
+        {
+          label: "Help & Support",
+          icon: "i-lucide-info",
+          to: "https://github.com/nuxt-ui-templates/dashboard",
+          target: "_blank",
         },
       ],
-    },
-  ],
-  [
-    {
-      label: "Feedback",
-      icon: "i-lucide-message-circle",
-      to: "https://github.com/nuxt-ui-templates/dashboard",
-      target: "_blank",
-    },
-    {
-      label: "Help & Support",
-      icon: "i-lucide-info",
-      to: "https://github.com/nuxt-ui-templates/dashboard",
-      target: "_blank",
-    },
-  ],
-] satisfies NavigationMenuItem[][];
+    ] satisfies NavigationMenuItem[][],
+);
 
 const groups = computed(() => [
   {
     id: "links",
     label: "Go to",
-    items: links.flat(),
+    items: links.value.flat(),
   },
   {
     id: "code",
@@ -158,7 +199,7 @@ onMounted(async () => {
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <TeamsMenu :collapsed="collapsed" />
+        <CollectionsMenu :collapsed="collapsed" />
       </template>
 
       <template #default="{ collapsed }">

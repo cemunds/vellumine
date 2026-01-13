@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     "nuxt-og-image",
     "@vueuse/nuxt",
     "@polar-sh/nuxt",
+    "@pinia/nuxt",
   ],
   runtimeConfig: {
     public: {

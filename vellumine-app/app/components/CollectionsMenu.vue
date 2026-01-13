@@ -5,48 +5,47 @@ defineProps<{
   collapsed?: boolean;
 }>();
 
-const teams = ref([
-  {
-    label: "Nuxt",
+const CollectionAvatar = resolveComponent("CollectionAvatar");
+
+const { setActiveCollection } = useActiveCollectionStore();
+
+const { data } = await useFetch("/api/v1/collections", {
+  default: () => [],
+});
+
+const collections = computed(() => {
+  return data.value.map((col) => ({
+    label: col.name,
+    id: col.id,
     avatar: {
-      src: "https://github.com/nuxt.png",
-      alt: "Nuxt",
+      component: CollectionAvatar,
+      alt: col.name,
     },
-  },
-  {
-    label: "NuxtHub",
-    avatar: {
-      src: "https://github.com/nuxt-hub.png",
-      alt: "NuxtHub",
-    },
-  },
-  {
-    label: "NuxtLabs",
-    avatar: {
-      src: "https://github.com/nuxtlabs.png",
-      alt: "NuxtLabs",
-    },
-  },
-]);
-const selectedTeam = ref(teams.value[0]);
+    to: `/collections/${col.id}`,
+  }));
+});
+
+const selectedCollection = ref(collections.value[0]);
+setActiveCollection(selectedCollection.value.id);
 
 const items = computed<DropdownMenuItem[][]>(() => {
   return [
-    teams.value.map((team) => ({
+    collections.value.map((team) => ({
       ...team,
       onSelect() {
-        selectedTeam.value = team;
+        selectedCollection.value = team;
       },
     })),
     [
       {
-        label: "Create team",
+        label: "Create collection",
         icon: "i-lucide-circle-plus",
+        to: "/collections/create",
       },
-      {
-        label: "Manage teams",
-        icon: "i-lucide-cog",
-      },
+      // {
+      //   label: "Manage collections",
+      //   icon: "i-lucide-cog",
+      // },
     ],
   ];
 });
@@ -62,8 +61,8 @@ const items = computed<DropdownMenuItem[][]>(() => {
   >
     <UButton
       v-bind="{
-        ...selectedTeam,
-        label: collapsed ? undefined : selectedTeam?.label,
+        ...selectedCollection,
+        label: collapsed ? undefined : selectedCollection?.label,
         trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down',
       }"
       color="neutral"

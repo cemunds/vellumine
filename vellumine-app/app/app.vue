@@ -17,9 +17,9 @@ useHead({
   },
 });
 
-const title = "Nuxt Dashboard Template";
+const title = "Vellumine";
 const description =
-  "A professional dashboard template built with Nuxt UI, featuring multiple pages, data visualization, and comprehensive management capabilities for creating powerful admin interfaces.";
+  "Customizable full-text and semantic search for your Ghost blog.";
 
 useSeoMeta({
   title,
