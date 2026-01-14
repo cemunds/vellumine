@@ -26,7 +26,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       posthogPublicKey: "phc_wJDFwNQ9CC851xP7nxzM7EhIIoMKV1jAXX1FtqU7Hkl",
-      posthogHost: "https://eu.i.posthog.com",
+      posthogHost: "https://ph.vellumine.com",
       posthogDefaults: "2025-11-30",
     },
   },
