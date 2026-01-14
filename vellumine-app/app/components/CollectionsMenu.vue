@@ -26,14 +26,14 @@ const collections = computed(() => {
 });
 
 const selectedCollection = ref(collections.value[0]);
-setActiveCollection(selectedCollection.value.id);
+// setActiveCollection(selectedCollection.value.id);
 
 const items = computed<DropdownMenuItem[][]>(() => {
   return [
-    collections.value.map((team) => ({
-      ...team,
+    collections.value.map((collection) => ({
+      ...collection,
       onSelect() {
-        selectedCollection.value = team;
+        selectedCollection.value = collection;
       },
     })),
     [

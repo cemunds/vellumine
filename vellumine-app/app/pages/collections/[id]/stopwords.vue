@@ -1,3 +1,14 @@
+<script setup lang="ts"></script>
+
 <template>
-  <div></div>
+  <UDashboardPanel id="Stopwords">
+    <template #header>
+      <UDashboardNavbar title="Stopwords">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
+    </template>
+    <template #body></template>
+  </UDashboardPanel>
 </template>

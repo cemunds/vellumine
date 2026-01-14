@@ -95,7 +95,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       description: "Logged in successfully",
       color: "success",
     });
-    await router.push("/");
+
+    await navigateTo("/");
   } catch (error) {
     console.error("Login error:", error);
     toast.add({

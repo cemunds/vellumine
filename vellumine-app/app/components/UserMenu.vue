@@ -7,6 +7,8 @@ defineProps<{
   collapsed?: boolean;
 }>();
 
+const supabase = useSupabaseClient();
+
 const colorMode = useColorMode();
 const appConfig = useAppConfig();
 
@@ -189,24 +191,23 @@ const items = computed<DropdownMenuItem[][]>(() => [
   //     ],
   //   },
   // ],
-  // [
-  //   {
-  //     label: "Documentation",
-  //     icon: "i-lucide-book-open",
-  //     to: "https://ui.nuxt.com/docs/getting-started/installation/nuxt",
-  //     target: "_blank",
-  //   },
-  //   {
-  //     label: "GitHub repository",
-  //     icon: "i-simple-icons-github",
-  //     to: "https://github.com/nuxt-ui-templates/dashboard",
-  //     target: "_blank",
-  //   },
-  //   {
-  //     label: "Log out",
-  //     icon: "i-lucide-log-out",
-  //   },
-  // ],
+  [
+    {
+      label: "Documentation",
+      icon: "i-lucide-book-open",
+      to: "https://ui.nuxt.com/docs/getting-started/installation/nuxt",
+      target: "_blank",
+    },
+    {
+      label: "Log out",
+      icon: "i-lucide-log-out",
+      onSelect: async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        await navigateTo("/login");
+      },
+    },
+  ],
 ]);
 </script>
 

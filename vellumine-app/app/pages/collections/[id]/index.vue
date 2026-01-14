@@ -13,14 +13,6 @@ const syncStatus = ref<any>(null);
 const scriptTag = ref<string>("");
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const activeTab = ref("overview");
-
-// Tabs
-const tabs = [
-  { id: "overview", label: "Overview", icon: "i-lucide-info" },
-  { id: "sync", label: "Sync Status", icon: "i-lucide-refresh-cw" },
-  { id: "integration", label: "Integration", icon: "i-lucide-code" },
-];
 
 // Fetch collection details
 async function fetchCollectionDetails() {
@@ -84,30 +76,6 @@ async function syncCollection() {
   }
 }
 
-async function deleteCollection() {
-  try {
-    const response = await $fetch(`/api/v1/collections/${collectionId}`, {
-      method: "DELETE",
-    });
-
-    useToast().add({
-      title: "Collection deleted",
-      description: "Collection has been deleted.",
-      color: "success",
-    });
-
-    await navigateTo("/collections");
-  } catch (err) {
-    console.error("Failed to delete collection:", err);
-    useToast().add({
-      title: "Deletion failed",
-      description:
-        (err as any)?.statusMessage || "Failed to delete collection.",
-      color: "error",
-    });
-  }
-}
-
 // Copy script tag to clipboard
 function copyScriptTag() {
   if (!scriptTag.value) return;
@@ -130,32 +98,16 @@ function copyScriptTag() {
     });
 }
 
-// Navigate back
-function goBack() {
-  router.push("/collections");
-}
-
-onMounted(() => {
-  fetchCollectionDetails();
-  generateScriptTag();
-});
+await fetchCollectionDetails();
+await generateScriptTag();
 </script>
 
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar
-        :title="collection?.name || 'Collection Details'"
-        :ui="{ right: 'gap-3' }"
-      >
+      <UDashboardNavbar title="Home">
         <template #leading>
           <UDashboardSidebarCollapse />
-          <UButton
-            icon="i-lucide-arrow-left"
-            variant="ghost"
-            color="neutral"
-            @click="goBack"
-          />
         </template>
         <template #right>
           <UButton
@@ -167,12 +119,6 @@ onMounted(() => {
           </UButton>
         </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar>
-        <template #left>
-          <UTabs :items="tabs" v-model="activeTab" />
-        </template>
-      </UDashboardToolbar>
     </template>
 
     <template #body>
@@ -195,7 +141,7 @@ onMounted(() => {
         <!-- Content -->
         <div v-else class="space-y-6">
           <!-- Overview Tab -->
-          <div v-if="activeTab === 'overview'" class="space-y-4">
+          <div class="space-y-4">
             <UCard>
               <template #header>
                 <h3 class="font-medium text-gray-900 dark:text-white">
@@ -297,28 +243,10 @@ onMounted(() => {
                 </div>
               </div>
             </UCard>
-
-            <UCard>
-              <template #header>
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  Danger Zone
-                </h3>
-              </template>
-
-              <div class="space-y-4">
-                <UButton
-                  icon="i-lucide-trash"
-                  color="error"
-                  @click="deleteCollection"
-                >
-                  Delete Collection
-                </UButton>
-              </div>
-            </UCard>
           </div>
 
           <!-- Sync Status Tab -->
-          <div v-if="activeTab === 'sync'" class="space-y-4">
+          <div class="space-y-4">
             <UCard>
               <template #header>
                 <h3 class="font-medium text-gray-900 dark:text-white">
@@ -409,7 +337,7 @@ onMounted(() => {
           </div>
 
           <!-- Integration Tab -->
-          <div v-if="activeTab === 'integration'" class="space-y-4">
+          <div class="space-y-4">
             <UCard>
               <template #header>
                 <div class="flex items-center justify-between">

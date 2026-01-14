@@ -1,6 +1,8 @@
+const VELLUMINE_ACTIVE_COLLECTION_KEY = "VELLUMINE_ACTIVE_COLLECTION";
+
 export const useActiveCollectionStore = defineStore("activeCollection", () => {
-  const activeCollection = ref({
-    id: "abc",
+  const activeCollection = useLocalStorage(VELLUMINE_ACTIVE_COLLECTION_KEY, {
+    id: "",
   });
 
   const setActiveCollection = (id: string) => {

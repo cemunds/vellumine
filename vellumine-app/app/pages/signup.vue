@@ -72,7 +72,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       description: "Account created successfully",
       color: "success",
     });
-    await router.push("/");
+
+    await navigateTo("/");
   } catch (error) {
     console.error("Signup error:", error);
     toast.add({

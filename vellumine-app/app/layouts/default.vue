@@ -33,6 +33,14 @@ const links = computed(
           },
         },
         {
+          label: "Customize UI",
+          to: resolvePath("ui"),
+          icon: "i-lucide-app-window",
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+        {
           label: "Synonyms",
           to: resolvePath("synonyms"),
           icon: "i-lucide-arrow-right-left",

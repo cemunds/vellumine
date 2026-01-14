@@ -1,9 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <UDashboardPanel id="Synonyms">
+  <UDashboardPanel id="Customize UI">
     <template #header>
-      <UDashboardNavbar title="Synonyms">
+      <UDashboardNavbar title="Customize UI">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
