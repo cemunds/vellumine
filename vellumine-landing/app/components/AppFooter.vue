@@ -51,6 +51,26 @@ const columns = [
       },
     ],
   },
+  {
+    label: "Legal",
+    children: [
+      {
+        label: "Privacy Policy",
+      },
+      {
+        label: "Data Processing Agreement",
+      },
+      {
+        label: "Terms",
+      },
+      {
+        label: "Service Level Agreement",
+      },
+      {
+        label: "Imprint",
+      },
+    ],
+  },
 ];
 
 const toast = useToast();
@@ -77,17 +97,8 @@ function onSubmit() {
         <UFooterColumns :columns="columns">
           <template #right>
             <form @submit.prevent="onSubmit">
-              <UFormField
-                name="email"
-                label="Subscribe to our newsletter"
-                size="lg"
-              >
-                <UInput
-                  v-model="email"
-                  type="email"
-                  class="w-full"
-                  placeholder="Enter your email"
-                >
+              <UFormField name="email" label="Subscribe to our newsletter" size="lg">
+                <UInput v-model="email" type="email" class="w-full" placeholder="Enter your email">
                   <template #trailing>
                     <UButton type="submit" size="xs" label="Subscribe" />
                   </template>
@@ -106,30 +117,12 @@ function onSubmit() {
     </template>
 
     <template #right>
-      <UButton
-        to="https://go.nuxt.com/discord"
-        target="_blank"
-        icon="i-simple-icons-discord"
-        aria-label="Nuxt on Discord"
-        color="neutral"
-        variant="ghost"
-      />
-      <UButton
-        to="https://go.nuxt.com/x"
-        target="_blank"
-        icon="i-simple-icons-x"
-        aria-label="Nuxt on X"
-        color="neutral"
-        variant="ghost"
-      />
-      <UButton
-        to="https://github.com/nuxt-ui-templates/landing"
-        target="_blank"
-        icon="i-simple-icons-github"
-        aria-label="Nuxt UI on GitHub"
-        color="neutral"
-        variant="ghost"
-      />
+      <UButton to="https://go.nuxt.com/discord" target="_blank" icon="i-simple-icons-discord"
+        aria-label="Nuxt on Discord" color="neutral" variant="ghost" />
+      <UButton to="https://go.nuxt.com/x" target="_blank" icon="i-simple-icons-x" aria-label="Nuxt on X" color="neutral"
+        variant="ghost" />
+      <UButton to="https://github.com/nuxt-ui-templates/landing" target="_blank" icon="i-simple-icons-github"
+        aria-label="Nuxt UI on GitHub" color="neutral" variant="ghost" />
     </template>
   </UFooter>
 </template>
