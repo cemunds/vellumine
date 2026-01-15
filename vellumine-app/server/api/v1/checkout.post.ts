@@ -1,14 +1,9 @@
 export default defineEventHandler((event) => {
-  const {
-    private: { polarAccessToken, polarCheckoutSuccessUrl, polarServer },
-  } = useRuntimeConfig();
-
   const checkoutHandler = Checkout({
-    accessToken: polarAccessToken,
-    successUrl: polarCheckoutSuccessUrl,
-    returnUrl: "https://myapp.com", // An optional URL which renders a back-button in the Checkout
-    server: polarServer as "sandbox" | "production",
-    theme: "dark", // Enforces the theme - System-preferred theme will be set if left omitted
+    accessToken: process.env.POLAR_ACCESS_TOKEN,
+    successUrl: process.env.POLAR_SUCCESS_URL,
+    returnUrl: "https://app.vellumine.com",
+    server: process.env.POLAR_SERVER as "sandbox" | "production",
   });
 
   return checkoutHandler(event);

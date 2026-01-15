@@ -13,17 +13,15 @@ export default defineEventHandler(async (event) => {
     server: process.env.POLAR_SERVER as "sandbox" | "production",
   });
 
-  const customerPortalHandler = CustomerPortal({
-    accessToken: process.env.POLAR_ACCESS_TOKEN!,
-    returnUrl: "https://app.vellumine.com",
-    server: process.env.POLAR_SERVER as "sandbox" | "production",
-    getCustomerId: async (event) => {
-      const customer = await polar.customers.getExternal({
-        externalId: user.sub,
-      });
-      return customer.id;
-    },
+  const subscriptions = await polar.subscriptions.list({
+    externalCustomerId: user.sub,
+    active: true,
   });
+  const activeSubscription = subscriptions.result.items.pop();
 
-  return customerPortalHandler(event);
+  if (!activeSubscription) {
+    return null;
+  }
+
+  return activeSubscription;
 });

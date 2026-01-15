@@ -100,6 +100,12 @@ function copyScriptTag() {
 
 await fetchCollectionDetails();
 await generateScriptTag();
+
+const user = useSupabaseUser();
+
+const basicCheckoutUrl = computed(() => {
+  return `/api/v1/checkout?products=8364631f-ff72-4edf-9f0e-d2b9b9c1f499&customerName=Chris&customerEmail=${user.value?.email}&customerExternalId=${user.value?.sub}`;
+});
 </script>
 
 <template>
@@ -110,11 +116,7 @@ await generateScriptTag();
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <UButton
-            icon="i-lucide-refresh-cw"
-            @click="syncCollection"
-            :loading="syncStatus?.status === 'syncing'"
-          >
+          <UButton icon="i-lucide-refresh-cw" @click="syncCollection" :loading="syncStatus?.status === 'syncing'">
             {{ syncStatus?.status === "syncing" ? "Syncing..." : "Sync Now" }}
           </UButton>
         </template>
@@ -124,14 +126,8 @@ await generateScriptTag();
     <template #body>
       <div class="space-y-6">
         <!-- Error Message -->
-        <UAlert
-          v-if="error"
-          icon="i-lucide-alert-circle"
-          color="error"
-          variant="soft"
-          :description="error"
-          @close="error = null"
-        />
+        <UAlert v-if="error" icon="i-lucide-alert-circle" color="error" variant="soft" :description="error"
+          @close="error = null" />
 
         <!-- Loading State -->
         <div v-if="isLoading" class="flex justify-center items-center py-12">
@@ -140,7 +136,6 @@ await generateScriptTag();
 
         <!-- Content -->
         <div v-else class="space-y-6">
-          <!-- Overview Tab -->
           <div class="space-y-4">
             <UCard>
               <template #header>
@@ -148,6 +143,12 @@ await generateScriptTag();
                   Collection Information
                 </h3>
               </template>
+
+              <!-- <div>
+                <form method="POST" :action="basicCheckoutUrl">
+                  <button type="submit">Buy Basic</button>
+                </form>
+              </div> -->
 
               <div class="space-y-4">
                 <div>
@@ -260,22 +261,11 @@ await generateScriptTag();
                     Current Status
                   </p>
                   <div class="flex items-center gap-2">
-                    <UBadge
-                      v-if="syncStatus?.status === 'syncing'"
-                      variant="soft"
-                      color="info"
-                    >
-                      <UIcon
-                        name="i-lucide-loader-2"
-                        class="animate-spin mr-1"
-                      />
+                    <UBadge v-if="syncStatus?.status === 'syncing'" variant="soft" color="info">
+                      <UIcon name="i-lucide-loader-2" class="animate-spin mr-1" />
                       Syncing
                     </UBadge>
-                    <UBadge
-                      v-else-if="syncStatus?.status === 'error'"
-                      variant="soft"
-                      color="error"
-                    >
+                    <UBadge v-else-if="syncStatus?.status === 'error'" variant="soft" color="error">
                       <UIcon name="i-lucide-alert-circle" class="mr-1" />
                       Error
                     </UBadge>
@@ -290,12 +280,7 @@ await generateScriptTag();
                   <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                     Error Message
                   </p>
-                  <UAlert
-                    icon="i-lucide-alert-circle"
-                    color="error"
-                    variant="soft"
-                    :description="syncStatus.error"
-                  />
+                  <UAlert icon="i-lucide-alert-circle" color="error" variant="soft" :description="syncStatus.error" />
                 </div>
 
                 <div v-if="syncStatus?.lastSyncAt">
@@ -344,25 +329,15 @@ await generateScriptTag();
                   <h3 class="font-medium text-gray-900 dark:text-white">
                     Search Integration
                   </h3>
-                  <UButton
-                    icon="i-lucide-copy"
-                    size="xs"
-                    variant="ghost"
-                    @click="copyScriptTag"
-                  >
+                  <UButton icon="i-lucide-copy" size="xs" variant="ghost" @click="copyScriptTag">
                     Copy Script
                   </UButton>
                 </div>
               </template>
 
               <div class="space-y-4">
-                <UTextarea
-                  v-model="scriptTag"
-                  :rows="10"
-                  readonly
-                  placeholder="Generating script tag..."
-                  class="font-mono text-xs"
-                />
+                <UTextarea v-model="scriptTag" :rows="10" readonly placeholder="Generating script tag..."
+                  class="font-mono text-xs" />
 
                 <UAlert icon="i-lucide-info" color="info" variant="soft">
                   <template #description>
