@@ -14,6 +14,15 @@ interface GhostServiceConfig {
   adminApiKey: string;
 }
 
+type CreateWebhooksResponse =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      errors: any[];
+    };
+
 export class GhostService {
   private config: GhostServiceConfig;
   private ghostClient: ReturnType<typeof GhostAdminAPI>;
@@ -325,6 +334,68 @@ export class GhostService {
       throw new Error(`Content sync failed: ${error.message}`);
     }
   }
+
+  async createWebhooks(
+    collectionId: string,
+    webhookSecret: string,
+  ): Promise<CreateWebhooksResponse> {
+    const target_url = `${process.env.WEBHOOK_HOST}/webhook/sync?collectionId=${collectionId}&webhookSecret=${webhookSecret}`;
+
+    const webhooks = [
+      {
+        event: "post.published",
+        name: "Post published",
+      },
+      {
+        event: "post.published.edited",
+        name: "Published post edited",
+      },
+      {
+        event: "post.deleted",
+        name: "Post deleted",
+      },
+      {
+        event: "post.unpublished",
+        name: "Post unpublished",
+      },
+      {
+        event: "page.published",
+        name: "Page published",
+      },
+      {
+        event: "page.published.edited",
+        name: "Published page edited",
+      },
+      {
+        event: "page.deleted",
+        name: "Page deleted",
+      },
+      {
+        event: "page.unpublished",
+        name: "Page unpublished",
+      },
+    ] as const;
+
+    const promises = webhooks.map((webhook) =>
+      this.ghostClient.webhooks.add({ ...webhook, target_url }),
+    );
+
+    const settled = await Promise.allSettled(promises);
+
+    const errors = settled
+      .filter((p) => p.status === "rejected")
+      .map((p) => p.reason);
+    if (errors.length > 0) {
+      return {
+        success: false,
+        errors,
+      };
+    }
+
+    return { success: true };
+  }
+
+  private async cleanupWebhooks() {}
 
   /**
    * Handle webhook event from Ghost

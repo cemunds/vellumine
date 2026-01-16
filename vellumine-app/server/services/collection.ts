@@ -4,6 +4,7 @@ import { collectionRepository } from "../db/repositories/collection";
 import Typesense from "typesense";
 import { z } from "zod";
 import consola from "consola";
+import { GhostService } from "./ghost";
 
 export interface Document {
   id: string;
@@ -163,6 +164,22 @@ export const collectionService = {
         typesenseSearchKey,
         ...payload,
       });
+
+      const ghostService = await GhostService.create({
+        adminApiKey: payload.ghostAdminApiKey,
+        adminUrl: payload.ghostAdminUrl,
+      });
+
+      const response = await ghostService.createWebhooks(
+        uuid,
+        payload.webhookSecret,
+      );
+
+      if (!response.success) {
+        throw createError(
+          `Could not create Ghost webhooks: ${response.errors.pop()}`,
+        );
+      }
 
       return newCollection;
     });

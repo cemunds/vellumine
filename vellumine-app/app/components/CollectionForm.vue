@@ -1,78 +1,56 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import type { FormSubmitEvent } from "@nuxt/ui";
+import consola from "consola";
+import { z } from "zod";
 
-const router = useRouter();
+const toast = useToast();
 
-// Form data
-const form = ref({
+const schema = z.object({
+  name: z.string().nonempty("Collection name is required"),
+  description: z.string(),
+  ghostAdminUrl: z.url("Ghost Admin URL is required"),
+  ghostAdminApiKey: z.string().nonempty("Ghost Admin API Key is required"),
+});
+
+type FormSchema = z.infer<typeof schema>;
+
+const state = ref<FormSchema>({
   name: "",
   description: "",
   ghostAdminUrl: "",
   ghostAdminApiKey: "",
 });
 
-// Form state
 const isLoading = ref(false);
-const error = ref<string | null>(null);
-const showApiKeyInstructions = ref(false);
 
-// Validate Ghost URL
-function validateGhostUrl(url: string): boolean {
-  try {
-    const parsedUrl = new URL(url);
-    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-// Create collection
-async function createCollection() {
-  // Validate form
-  if (!form.value.name.trim()) {
-    error.value = "Collection name is required";
-    return;
-  }
-
-  if (form.value.ghostAdminUrl && !validateGhostUrl(form.value.ghostAdminUrl)) {
-    error.value = "Please enter a valid Ghost URL (http:// or https://)";
-    return;
-  }
-
-  if (form.value.ghostAdminUrl && !form.value.ghostAdminApiKey.trim()) {
-    error.value = "Ghost Admin API key is required when Ghost URL is provided";
-    return;
-  }
-
+async function onSubmit(event: FormSubmitEvent<FormSchema>) {
   try {
     isLoading.value = true;
-    error.value = null;
 
     const response = await $fetch("/api/v1/collections", {
       method: "POST",
       body: {
-        name: form.value.name,
-        description: form.value.description,
-        ghostAdminUrl: form.value.ghostAdminUrl,
-        ghostAdminApiKey: form.value.ghostAdminApiKey,
+        name: state.value.name,
+        description: state.value.description,
+        ghostAdminUrl: state.value.ghostAdminUrl,
+        ghostAdminApiKey: state.value.ghostAdminApiKey,
       },
     });
 
-    useToast().add({
+    toast.add({
       title: "Collection Created",
       description: "Your collection has been created successfully.",
       color: "success",
     });
 
     // Navigate to collection details
-    router.push(`/collections/${response.id}`);
+    await navigateTo(`/collections/${response.id}`);
   } catch (err: any) {
-    console.error("Failed to create collection:", err);
-    error.value =
-      err.statusMessage || "Failed to create collection. Please try again.";
-    useToast().add({
+    consola.error("Failed to create collection:", err);
+
+    toast.add({
       title: "Creation Failed",
-      description: error.value || "Failed to create collection",
+      description: "Failed to create collection",
       color: "error",
     });
   } finally {
@@ -87,142 +65,64 @@ const ghostApiKeyInstructions = `
 1. **Log in** to your Ghost admin panel
 2. **Navigate** to Settings → Advanced → Integrations
 3. **Click** "Add custom integration"
-4. **Name** your integration (e.g., "GhostSearch")
+4. **Name** your integration (e.g., "Vellumine")
 5. **Click** "Create"
-6. **Copy** the "Content API Key" (not the Admin API Key)
+6. **Copy** the "Admin API Key"
 7. **Paste** it into the form above
-
-## Important Notes
-
-- The Content API Key allows read-only access to your posts and pages
-- Keep this key secure and don't share it publicly
-- If you want automatic webhook setup, you'll also need the Admin API Key
 `;
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Create Collection" :ui="{ right: 'gap-3' }">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
-        <template #right>
-          <UButton
-            type="submit"
-            form="collection-form"
-            :loading="isLoading"
-            icon="i-lucide-save"
-          >
-            Create Collection
-          </UButton>
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <UForm
+    :schema="schema"
+    :state="state"
+    @submit.prevent="onSubmit"
+    class="space-y-6"
+  >
+    <UFormField label="Collection Name" name="name" required>
+      <UInput v-model="state.name" placeholder="My Blog" />
+    </UFormField>
 
-    <template #body>
-      <div class="max-w-2xl mx-auto space-y-6">
-        <!-- Error Message -->
-        <UAlert
-          v-if="error"
-          icon="i-lucide-alert-circle"
-          color="error"
-          variant="soft"
-          :description="error"
-          @close="error = null"
-        />
+    <UFormField
+      label="Description"
+      name="description"
+      hint="Optional description for your collection"
+    >
+      <UTextarea
+        v-model="state.description"
+        placeholder="Description of your collection"
+      />
+    </UFormField>
 
-        <UForm
-          id="collection-form"
-          @submit.prevent="createCollection"
-          class="space-y-6"
-        >
-          <!-- Collection Information -->
-          <UCard>
-            <template #header>
-              <h3 class="font-medium text-gray-900 dark:text-white">
-                Collection Information
-              </h3>
-            </template>
+    <UFormField
+      label="Ghost Admin URL"
+      name="ghostAdminUrl"
+      hint="e.g., https://admin.your-blog.com"
+      required
+    >
+      <UInput
+        v-model="state.ghostAdminUrl"
+        placeholder="https://admin.your-blog.com"
+      />
+    </UFormField>
 
-            <div class="space-y-4">
-              <UFormField label="Collection Name" required>
-                <UInput v-model="form.name" placeholder="My Blog Search" />
-              </UFormField>
+    <UFormField label="Ghost Admin API Key" name="ghostAdminApiKey" required>
+      <UInput
+        v-model="state.ghostAdminApiKey"
+        type="password"
+        placeholder="Admin API Key"
+      />
+    </UFormField>
 
-              <UFormField
-                label="Description"
-                hint="Optional description for your collection"
-              >
-                <UTextarea
-                  v-model="form.description"
-                  placeholder="Description of your collection"
-                />
-              </UFormField>
-            </div>
-          </UCard>
-
-          <!-- Ghost CMS Configuration -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  Ghost CMS Configuration
-                </h3>
-                <UButton
-                  variant="ghost"
-                  size="xs"
-                  @click="showApiKeyInstructions = !showApiKeyInstructions"
-                >
-                  {{ showApiKeyInstructions ? "Hide" : "Show" }} Instructions
-                </UButton>
-              </div>
-            </template>
-
-            <div class="space-y-4">
-              <UFormField
-                label="Ghost Admin URL"
-                hint="e.g., https://admin.your-blog.com"
-              >
-                <UInput
-                  v-model="form.ghostAdminUrl"
-                  placeholder="https://admin.your-blog.com"
-                />
-              </UFormField>
-
-              <UFormField label="Ghost Admin API Key" required>
-                <UInput
-                  v-model="form.ghostAdminApiKey"
-                  type="password"
-                  placeholder="Admin API Key"
-                />
-              </UFormField>
-
-              <!-- API Key Instructions -->
-              <UAlert
-                v-if="showApiKeyInstructions"
-                icon="i-lucide-info"
-                color="info"
-                variant="soft"
-                :description="ghostApiKeyInstructions"
-                class="mt-4"
-              />
-            </div>
-          </UCard>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end">
-            <UButton
-              type="submit"
-              :loading="isLoading"
-              icon="i-lucide-save"
-              size="lg"
-            >
-              Create Collection
-            </UButton>
-          </div>
-        </UForm>
-      </div>
-    </template>
-  </UDashboardPanel>
+    <div class="flex justify-end">
+      <UButton
+        type="submit"
+        :loading="isLoading"
+        icon="i-lucide-save"
+        size="lg"
+      >
+        Create Collection
+      </UButton>
+    </div>
+  </UForm>
 </template>

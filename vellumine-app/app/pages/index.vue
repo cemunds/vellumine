@@ -16,5 +16,7 @@ if (data.value.length > 0) {
 </script>
 
 <template>
-  <CollectionForm />
+  <UCard>
+    <CollectionForm />
+  </UCard>
 </template>

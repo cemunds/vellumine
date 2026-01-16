@@ -16,7 +16,7 @@ async function deleteCollection() {
       color: "success",
     });
 
-    await navigateTo("/collections");
+    await navigateTo("/");
   } catch (err) {
     console.error("Failed to delete collection:", err);
     useToast().add({
