@@ -91,14 +91,18 @@ import Typesense from 'typesense';
         return;
       }
 
-      const defaultConfig = Object.assign({
+      const scriptTag = document.currentScript;
+      const typesenseApiKey = scriptTag.dataset.apiKey;
+      const collectionName = scriptTag.dataset.collectionId;
+
+      const defaultConfig = {
         typesenseNodes: [{
-          host: 'localhost',
-          port: '8108',
-          protocol: 'http'
+          host: 'search.vellumine.com',
+          port: '443',
+          protocol: 'https'
         }],
-        typesenseApiKey: null,
-        collectionName: null,
+        typesenseApiKey,
+        collectionName,
         commonSearches: [],
         theme: 'system',
         enableHighlighting: true,
@@ -110,7 +114,7 @@ import Typesense from 'typesense';
           'tags.name': { weight: 4, highlight: true },
           'tags.slug': { weight: 3, highlight: true }
         }
-      }, window.__MP_SEARCH_CONFIG__);
+      };
 
       this.config = {
         ...defaultConfig,

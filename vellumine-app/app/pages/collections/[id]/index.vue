@@ -7,52 +7,24 @@ const router = useRouter();
 
 const collectionId = route.params.id as string;
 
-// Collection data
-const collection = ref<any>(null);
-const syncStatus = ref<any>(null);
-const scriptTag = ref<string>("");
-const isLoading = ref(true);
-const error = ref<string | null>(null);
+const { data: collection, refresh } = await useLazyFetch(
+  `/api/v1/collections/${collectionId}`,
+);
+// const { data: syncStatus } = await useLazyFetch(`/api/v1/collections/${collectionId}/sync`)
 
-// Fetch collection details
-async function fetchCollectionDetails() {
-  try {
-    isLoading.value = true;
-    error.value = null;
+const scriptTag = computed(() => {
+  if (!collection.value) return "";
 
-    // Fetch collection data
-    const [collectionResponse, syncResponse] = await Promise.all([
-      $fetch(`/api/v1/collections/${collectionId}`),
-      $fetch(`/api/v1/collections/${collectionId}/sync`),
-    ]);
-
-    collection.value = collectionResponse;
-    syncStatus.value = syncResponse;
-  } catch (err) {
-    console.error("Failed to fetch collection details:", err);
-    error.value = "Failed to load collection details. Please try again.";
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-// Generate script tag
-async function generateScriptTag() {
-  try {
-    const response = await $fetch(
-      `/api/v1/collections/${collectionId}/script-tag`,
-    );
-    scriptTag.value = response.scriptTag;
-  } catch (err) {
-    console.error("Failed to generate script tag:", err);
-    error.value = "Failed to generate script tag.";
-  }
-}
+  return `<!-- Vellumine Integration -->
+<script src="https://app.vellumine.com/search.min.js"
+  data-api-key="${collection.value.typesenseSearchKey}"
+  data-collection-id="${collection.value.id}"><\/script>`;
+});
 
 // Sync collection
 async function syncCollection() {
   try {
-    const response = await $fetch("/api/v1/collections/sync", {
+    const response = await $fetch("/api/v1/sync", {
       method: "POST",
       body: { collectionId },
     });
@@ -64,7 +36,7 @@ async function syncCollection() {
     });
 
     // Refresh sync status
-    await fetchCollectionDetails();
+    await refresh();
   } catch (err) {
     console.error("Failed to sync collection:", err);
     useToast().add({
@@ -98,9 +70,6 @@ function copyScriptTag() {
     });
 }
 
-await fetchCollectionDetails();
-await generateScriptTag();
-
 const user = useSupabaseUser();
 
 const basicCheckoutUrl = computed(() => {
@@ -116,26 +85,17 @@ const basicCheckoutUrl = computed(() => {
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <UButton icon="i-lucide-refresh-cw" @click="syncCollection" :loading="syncStatus?.status === 'syncing'">
+          <!-- <UButton icon="i-lucide-refresh-cw" @click="syncCollection" :loading="syncStatus?.status === 'syncing'">
             {{ syncStatus?.status === "syncing" ? "Syncing..." : "Sync Now" }}
-          </UButton>
+          </UButton> -->
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
       <div class="space-y-6">
-        <!-- Error Message -->
-        <UAlert v-if="error" icon="i-lucide-alert-circle" color="error" variant="soft" :description="error"
-          @close="error = null" />
-
-        <!-- Loading State -->
-        <div v-if="isLoading" class="flex justify-center items-center py-12">
-          <UProgress animation="carousel" />
-        </div>
-
         <!-- Content -->
-        <div v-else class="space-y-6">
+        <div class="space-y-6">
           <div class="space-y-4">
             <UCard>
               <template #header>
@@ -169,12 +129,12 @@ const basicCheckoutUrl = computed(() => {
                   </p>
                 </div>
 
-                <div v-if="collection?.ghostUrl">
+                <div v-if="collection?.ghostSiteUrl">
                   <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                     Ghost Blog URL
                   </p>
                   <p class="text-gray-900 dark:text-white">
-                    {{ collection?.ghostUrl }}
+                    {{ collection?.ghostSiteUrl }}
                   </p>
                 </div>
 
@@ -210,7 +170,7 @@ const basicCheckoutUrl = computed(() => {
                   </p>
                   <p class="text-gray-900 dark:text-white">
                     {{
-                      `https://ghostsearch.vercel.app/webhook/sync?collectionId=${collection?.id}&webhookSecret=${collection?.webhookSecret}`
+                      `https://app.vellumine.com/webhook/sync?collectionId=${collection?.id}&webhookSecret=${collection?.webhookSecret}`
                     }}
                   </p>
                 </div>
@@ -247,7 +207,7 @@ const basicCheckoutUrl = computed(() => {
           </div>
 
           <!-- Sync Status Tab -->
-          <div class="space-y-4">
+          <!-- <div class="space-y-4">
             <UCard>
               <template #header>
                 <h3 class="font-medium text-gray-900 dark:text-white">
@@ -319,7 +279,7 @@ const basicCheckoutUrl = computed(() => {
                 </div>
               </div>
             </UCard>
-          </div>
+          </div> -->
 
           <!-- Integration Tab -->
           <div class="space-y-4">
@@ -329,15 +289,25 @@ const basicCheckoutUrl = computed(() => {
                   <h3 class="font-medium text-gray-900 dark:text-white">
                     Search Integration
                   </h3>
-                  <UButton icon="i-lucide-copy" size="xs" variant="ghost" @click="copyScriptTag">
+                  <UButton
+                    icon="i-lucide-copy"
+                    size="xs"
+                    variant="ghost"
+                    @click="copyScriptTag"
+                  >
                     Copy Script
                   </UButton>
                 </div>
               </template>
 
               <div class="space-y-4">
-                <UTextarea v-model="scriptTag" :rows="10" readonly placeholder="Generating script tag..."
-                  class="font-mono text-xs" />
+                <UTextarea
+                  v-model="scriptTag"
+                  :rows="10"
+                  readonly
+                  placeholder="Generating script tag..."
+                  class="font-mono text-xs"
+                />
 
                 <UAlert icon="i-lucide-info" color="info" variant="soft">
                   <template #description>

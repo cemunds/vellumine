@@ -1,10 +1,5 @@
 import { serverSupabaseUser } from "#supabase/server";
 import { db } from "~~/server/db";
-import {
-  collection as collectionTable,
-  syncHistory,
-} from "~~/server/db/schema";
-import { eq, desc } from "drizzle-orm";
 import consola from "consola";
 import { collectionService } from "~~/server/services/collection";
 
@@ -15,7 +10,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
-  const collectionId = getRouterParam(event, "id");
+  const query = getQuery<{ collectionId: string }>(event);
+  const collectionId = query.collectionId;
 
   if (!collectionId) {
     throw createError({

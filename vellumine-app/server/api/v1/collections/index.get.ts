@@ -16,29 +16,6 @@ export default defineEventHandler(async (event) => {
       user.sub,
     );
 
-    // Get extended collection data with Ghost CMS info
-    // const extendedCollections = await Promise.all(
-    //   collections.map(async (col) => {
-    //     const collectionData = await db.query.collection.findFirst({
-    //       where: (collection, { eq }) => eq(collection.id, col.id),
-    //       columns: {
-    //         id: true,
-    //         name: true,
-    //         description: true,
-    //         createdAt: true,
-    //         updatedAt: true,
-    //         ghostUrl: true,
-    //         lastSyncAt: true,
-    //         syncStatus: true,
-    //         postCount: true,
-    //         pageCount: true,
-    //       },
-    //     });
-
-    //     return collectionData;
-    //   }),
-    // );
-
     return collections;
   } catch (error) {
     consola.error("Failed to fetch collections:", error);
