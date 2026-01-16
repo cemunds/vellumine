@@ -4,7 +4,6 @@ export const TypesenseCollection = z.object({
   id: z.uuid(),
   name: z.string().nonempty(),
   description: z.string().nullable(),
-  ghostSiteUrl: z.url().nonempty(),
   ghostAdminUrl: z.url().nonempty(),
   ghostAdminApiKey: z.string().min(1, "Content API key is required"),
   typesenseSearchKey: z.string(),
@@ -21,7 +20,6 @@ export const TypesenseCollection = z.object({
 export const CreateTypesenseCollection = TypesenseCollection.pick({
   name: true,
   description: true,
-  ghostSiteUrl: true,
   ghostAdminUrl: true,
   ghostAdminApiKey: true,
   webhookSecret: true,

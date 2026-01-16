@@ -97,7 +97,6 @@ export default defineEventHandler(async (event) => {
     // Initialize manager
     // const manager = new GhostTypesenseManager(config);
     const ghostService = await GhostService.create({
-      siteUrl: collection.ghostSiteUrl,
       adminUrl: collection.ghostAdminUrl,
       adminApiKey: collection.ghostAdminApiKey,
     });
@@ -132,7 +131,6 @@ export default defineEventHandler(async (event) => {
       if (status === "published" && visibility === "public") {
         console.log("📝 Indexing published post");
         const ghostService = await GhostService.create({
-          siteUrl: collection.ghostSiteUrl,
           adminUrl: collection.ghostAdminUrl,
           adminApiKey: collection.ghostAdminApiKey,
         });

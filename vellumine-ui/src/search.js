@@ -533,6 +533,8 @@ import Typesense from 'typesense';
             getHighlightedExcerpt('plaintext', hit.document.plaintext?.substring(0, 80)) ||
             hit.document.excerpt ||
             hit.document.plaintext?.substring(0, 80) || '';
+          const visibility = hit.document.visibility;
+          const visibilityBadge = visibility === "public" ? "" : `<p class="${CSS_PREFIX}-result-badge">${visibility}</p>`
 
           return `
                         <a href="${hit.document.url || '#'}"
@@ -540,7 +542,7 @@ import Typesense from 'typesense';
                             aria-label="${title.replace(/<[^>]*>/g, '')}">
                             <article class="${CSS_PREFIX}-result-item" role="article">
                                 <h3 class="${CSS_PREFIX}-result-title" role="heading" aria-level="3">${title}</h3>
-                                <p class="${CSS_PREFIX}-result-badge">Paid</p>
+                                ${visibilityBadge}
                                 <p class="${CSS_PREFIX}-result-excerpt" aria-label="${this.t('ariaArticleExcerpt')}">${excerpt}</p>
                             </article>
                         </a>

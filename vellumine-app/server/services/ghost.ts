@@ -10,7 +10,6 @@ import { JwksClient } from "jwks-rsa";
 import { Post } from "@ts-ghost/content-api";
 
 interface GhostServiceConfig {
-  siteUrl: string;
   adminUrl: string;
   adminApiKey: string;
 }
@@ -203,7 +202,8 @@ export class GhostService {
 
   async verifyJWT(token: string, params: { ignoreExpiration: boolean }) {
     const { ignoreExpiration = false } = params;
-    const jwksUri = `${this.config.siteUrl}/members/.well-known/jwks.json`;
+    // TODO: Find site URL through Ghost API
+    const jwksUri = `${this.config.adminUrl}/members/.well-known/jwks.json`;
     const jwksClient = new JwksClient({
       jwksUri,
     });
@@ -405,6 +405,7 @@ type IndexedPostFields = Pick<
   | "feature_image"
   | "tags"
   | "authors"
+  | "visibility"
 >;
 
 export function transformPost(post: IndexedPostFields): Document {
@@ -463,6 +464,7 @@ export function transformPost(post: IndexedPostFields): Document {
     excerpt: post.excerpt || "",
     published_at: new Date(post.published_at || Date.now()).getTime(),
     updated_at: new Date(post.updated_at || Date.now()).getTime(),
+    visibility: post.visibility,
   };
 
   if (post.feature_image) {

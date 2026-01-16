@@ -48,7 +48,6 @@ export default defineEventHandler(async (event) => {
 
     // Create Ghost service and start sync
     const ghostService = await GhostService.create({
-      siteUrl: collection.ghostSiteUrl,
       adminUrl: collection.ghostAdminUrl,
       adminApiKey: collection.ghostAdminApiKey,
     });

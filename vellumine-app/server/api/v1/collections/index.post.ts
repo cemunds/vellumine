@@ -12,7 +12,6 @@ import { randomBytes } from "crypto";
 const CreateCollectionDTO = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable(),
-  ghostSiteUrl: z.url().nonempty(),
   ghostAdminUrl: z.url().nonempty(),
   ghostAdminApiKey: z.string().min(1, "Content API key is required"),
 });
@@ -34,9 +33,8 @@ export default defineEventHandler(async (event) => {
   consola.log("Parsed collection request");
 
   // Validate Ghost CMS configuration if provided
-  if (collection.data.ghostSiteUrl && collection.data.ghostAdminApiKey) {
+  if (collection.data.ghostAdminUrl && collection.data.ghostAdminApiKey) {
     const ghostService = await GhostService.create({
-      siteUrl: collection.data.ghostSiteUrl,
       adminUrl: collection.data.ghostAdminUrl,
       adminApiKey: collection.data.ghostAdminApiKey,
     });

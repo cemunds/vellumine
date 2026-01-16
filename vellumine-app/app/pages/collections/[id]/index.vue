@@ -129,15 +129,6 @@ const basicCheckoutUrl = computed(() => {
                   </p>
                 </div>
 
-                <div v-if="collection?.ghostSiteUrl">
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    Ghost Blog URL
-                  </p>
-                  <p class="text-gray-900 dark:text-white">
-                    {{ collection?.ghostSiteUrl }}
-                  </p>
-                </div>
-
                 <div>
                   <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                     Created At

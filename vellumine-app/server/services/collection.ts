@@ -20,6 +20,7 @@ export interface Document {
   "tags.slug"?: string[];
   authors?: string[];
   tags?: string[];
+  visibility: string;
   [key: string]: unknown;
 }
 
@@ -143,8 +144,7 @@ export const collectionService = {
             optional: true,
           },
           { name: "authors", type: "string[]", facet: true, optional: true },
-          // visibility can be 'public', 'members', 'paid'
-          // { name: "visibility", type: "string" }
+          { name: "visibility", type: "string" },
         ],
         enable_nested_fields: true,
       };

@@ -7,7 +7,6 @@ const router = useRouter();
 const form = ref({
   name: "",
   description: "",
-  ghostSiteUrl: "",
   ghostAdminUrl: "",
   ghostAdminApiKey: "",
 });
@@ -35,12 +34,12 @@ async function createCollection() {
     return;
   }
 
-  if (form.value.ghostSiteUrl && !validateGhostUrl(form.value.ghostSiteUrl)) {
+  if (form.value.ghostAdminUrl && !validateGhostUrl(form.value.ghostAdminUrl)) {
     error.value = "Please enter a valid Ghost URL (http:// or https://)";
     return;
   }
 
-  if (form.value.ghostSiteUrl && !form.value.ghostAdminApiKey.trim()) {
+  if (form.value.ghostAdminUrl && !form.value.ghostAdminApiKey.trim()) {
     error.value = "Ghost Admin API key is required when Ghost URL is provided";
     return;
   }
@@ -54,7 +53,6 @@ async function createCollection() {
       body: {
         name: form.value.name,
         description: form.value.description,
-        ghostSiteUrl: form.value.ghostSiteUrl,
         ghostAdminUrl: form.value.ghostAdminUrl,
         ghostAdminApiKey: form.value.ghostAdminApiKey,
       },
@@ -182,16 +180,6 @@ const ghostApiKeyInstructions = `
             </template>
 
             <div class="space-y-4">
-              <UFormField
-                label="Ghost Blog URL"
-                hint="e.g., https://your-blog.com"
-              >
-                <UInput
-                  v-model="form.ghostSiteUrl"
-                  placeholder="https://your-blog.com"
-                />
-              </UFormField>
-
               <UFormField
                 label="Ghost Admin URL"
                 hint="e.g., https://admin.your-blog.com"
