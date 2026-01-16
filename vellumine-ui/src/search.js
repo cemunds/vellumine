@@ -91,7 +91,7 @@ import Typesense from 'typesense';
         return;
       }
 
-      const scriptTag = document.currentScript;
+      const scriptTag = document.getElementById("vellumine")
       const typesenseApiKey = scriptTag.dataset.apiKey;
       const collectionName = scriptTag.dataset.collectionId;
 
@@ -183,16 +183,6 @@ import Typesense from 'typesense';
                                             aria-label="${this.t('ariaSearchLabel')}"
                                         />
                                     </form>
-                                </div>
-                                <div class="${CSS_PREFIX}-hints">
-                                    <span>
-                                        <kbd class="${CSS_PREFIX}-kbd">↑↓</kbd>
-                                        ${this.t('navigateHint')}
-                                    </span>
-                                    <span>
-                                        <kbd class="${CSS_PREFIX}-kbd">esc</kbd>
-                                        ${this.t('closeHint')}
-                                    </span>
                                 </div>
                             </div>
                             <div class="${CSS_PREFIX}-results-container">
@@ -590,7 +580,7 @@ import Typesense from 'typesense';
         query_by_weights: weights.join(','),
         highlight_full_fields: highlightFields.join(','),
         highlight_affix_num_tokens: 30,
-        include_fields: 'title,url,excerpt,plaintext,published_at,tags',
+        include_fields: 'title,url,excerpt,plaintext,published_at,tags,visibility',
         typo_tolerance: false,
         num_typos: 0,
         prefix: true,

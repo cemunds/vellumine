@@ -20,8 +20,6 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    console.log("User: ", user.sub);
-    console.log("CollectionId: ", collectionId);
     const collection = await collectionService.getById(
       db,
       user.sub,

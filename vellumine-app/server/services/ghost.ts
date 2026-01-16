@@ -262,15 +262,15 @@ export class GhostService {
   async syncContent(collectionId: string): Promise<void> {
     try {
       // Start sync record
-      const syncRecord = await db
-        .insert(syncHistory)
-        .values({
-          collectionId,
-          status: "started",
-        })
-        .returning();
+      // const syncRecord = await db
+      //   .insert(syncHistory)
+      //   .values({
+      //     collectionId,
+      //     status: "started",
+      //   })
+      //   .returning();
 
-      const syncId = syncRecord[0].id;
+      // const syncId = syncRecord[0].id;
 
       // Fetch all posts and pages
       const [posts, pages] = await Promise.all([
@@ -291,12 +291,12 @@ export class GhostService {
       const allDocuments = [...postDocuments, ...pageDocuments];
       await collectionService.indexDocuments(collectionId, allDocuments);
 
-      await collectionService.setSyncStatus(
-        db,
-        collectionId,
-        "completed",
-        null,
-      );
+      // await collectionService.setSyncStatus(
+      //   db,
+      //   collectionId,
+      //   "completed",
+      //   null,
+      // );
 
       // Update collection stats using direct DB update
       await db
@@ -308,17 +308,17 @@ export class GhostService {
         .where(eq(collection.id, collectionId));
 
       // Complete sync record
-      await db
-        .update(syncHistory)
-        .set({
-          status: "completed",
-          completedAt: new Date(),
-          postsProcessed: posts.length,
-          pagesProcessed: pages.length,
-          postsSuccess: posts.length,
-          pagesSuccess: pages.length,
-        })
-        .where(eq(syncHistory.id, syncId));
+      // await db
+      //   .update(syncHistory)
+      //   .set({
+      //     status: "completed",
+      //     completedAt: new Date(),
+      //     postsProcessed: posts.length,
+      //     pagesProcessed: pages.length,
+      //     postsSuccess: posts.length,
+      //     pagesSuccess: pages.length,
+      //   })
+      //   .where(eq(syncHistory.id, syncId));
 
       consola.success("Content sync completed successfully");
     } catch (error: any) {
@@ -394,8 +394,6 @@ export class GhostService {
 
     return { success: true };
   }
-
-  private async cleanupWebhooks() {}
 
   /**
    * Handle webhook event from Ghost

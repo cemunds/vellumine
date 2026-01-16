@@ -181,6 +181,14 @@ export const collectionService = {
         );
       }
 
+      await ghostService.syncContent(uuid);
+      // .then(() => {
+      //   consola.success(`Sync completed for collection ${uuid}`);
+      // })
+      // .catch((error) => {
+      //   consola.error(`Sync failed for collection ${uuid}:`, error);
+      // });
+
       return newCollection;
     });
   },
