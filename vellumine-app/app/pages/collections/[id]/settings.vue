@@ -74,7 +74,7 @@ async function syncCollection() {
         <div class="space-y-4">
           <UButton icon="i-lucide-refresh-cw" @click="syncCollection">
             <!-- {{ syncStatus?.status === "syncing" ? "Syncing..." : "Sync Now" }} -->
-              Sync Now
+            Sync Now
           </UButton>
         </div>
       </UCard>

@@ -77,7 +77,7 @@ export class GhostService {
           page,
           filter: ["status:published"],
           include: ["tags", "authors"],
-          formats: ["html", "plaintext"] // TODO: Maybe also try "lexical"
+          formats: ["html", "plaintext"], // TODO: Maybe also try "lexical"
         });
 
         // if (!response.success) {
@@ -123,7 +123,7 @@ export class GhostService {
           page,
           filter: ["status:published"],
           include: ["tags", "authors"],
-          formats: ["html", "plaintext"] // TODO: Maybe also try "lexical"
+          formats: ["html", "plaintext"], // TODO: Maybe also try "lexical"
         });
 
         // if (!response.success) {
