@@ -519,8 +519,8 @@ import Typesense from 'typesense';
           };
 
           const title = getHighlightedTitle('title', hit.document.title) || this.t('untitledPost');
-          const excerpt = getHighlightedExcerpt('excerpt', hit.document.excerpt) ||
-            getHighlightedExcerpt('plaintext', hit.document.plaintext?.substring(0, 80)) ||
+          const excerpt = getHighlightedExcerpt('plaintext', hit.document.plaintext?.substring(0, 80)) ||
+            getHighlightedExcerpt('excerpt', hit.document.excerpt) ||
             hit.document.excerpt ||
             hit.document.plaintext?.substring(0, 80) || '';
           const visibility = hit.document.visibility;
