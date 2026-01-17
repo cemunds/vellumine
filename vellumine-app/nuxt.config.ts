@@ -29,6 +29,9 @@ export default defineNuxtConfig({
       posthogPublicKey: "phc_wJDFwNQ9CC851xP7nxzM7EhIIoMKV1jAXX1FtqU7Hkl",
       posthogHost: "https://ph.vellumine.com",
       posthogDefaults: "2025-11-30",
+      typesenseProtocol: "http",
+      typesenseHost: "localhost",
+      typesensePort: 8108,
     },
   },
 });

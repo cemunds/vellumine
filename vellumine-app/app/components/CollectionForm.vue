@@ -76,8 +76,8 @@ const ghostApiKeyInstructions = `
   <UForm
     :schema="schema"
     :state="state"
-    @submit.prevent="onSubmit"
     class="space-y-6"
+    @submit.prevent="onSubmit"
   >
     <UFormField label="Collection Name" name="name" required>
       <UInput v-model="state.name" placeholder="My Blog" />

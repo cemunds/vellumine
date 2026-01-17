@@ -9,6 +9,6 @@
         </template>
       </UDashboardNavbar>
     </template>
-    <template #body></template>
+    <template #body />
   </UDashboardPanel>
 </template>

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { TypesenseCollection } from "~~/shared/parsers/collection";
 
+const activeCollectionStore = useActiveCollectionStore();
 const route = useRoute();
-const router = useRouter();
 
 const collectionId = route.params.id as string;
 
 const { data: collection, refresh } = await useLazyFetch(
   `/api/v1/collections/${collectionId}`,
 );
+
+watchEffect(() => {
+  if (!collection.value) return;
+
+  activeCollectionStore.setActiveCollection(collection.value);
+});
 // const { data: syncStatus } = await useLazyFetch(`/api/v1/collections/${collectionId}/sync`)
 
 const scriptTag = computed(() => {

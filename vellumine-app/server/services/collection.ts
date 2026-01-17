@@ -1,10 +1,11 @@
-import { CollectionCreateSchema } from "typesense/lib/Typesense/Collections";
-import { DB } from "../db";
+import type { CollectionCreateSchema } from "typesense/lib/Typesense/Collections";
+import type { DB } from "../db";
 import { collectionRepository } from "../db/repositories/collection";
 import Typesense from "typesense";
 import { z } from "zod";
 import consola from "consola";
 import { GhostService } from "./ghost";
+import type { AnalyticsRuleCreateSchema } from "typesense/lib/Typesense/AnalyticsRule";
 
 export interface Document {
   id: string;
@@ -59,9 +60,9 @@ const typesenseConfig = TypesenseConfigSchema.parse({
 const typesenseClient = new Typesense.Client({
   nodes: [
     {
-      protocol: process.env.TYPESENSE_PROTOCOL!,
-      host: process.env.TYPESENSE_HOST!,
-      port: parseInt(process.env.TYPESENSE_PORT!),
+      protocol: process.env.NUXT_PUBLIC_TYPESENSE_PROTOCOL!,
+      host: process.env.NUXT_PUBLIC_TYPESENSE_HOST!,
+      port: parseInt(process.env.NUXT_PUBLIC_TYPESENSE_PORT!),
     },
   ],
   apiKey: process.env.TYPESENSE_ADMIN_KEY!,
@@ -146,16 +147,23 @@ export const collectionService = {
           },
           { name: "authors", type: "string[]", facet: true, optional: true },
           { name: "visibility", type: "string" },
+          { name: "popularity", type: "int32", optional: true },
         ],
         enable_nested_fields: true,
       };
 
       await typesenseClient.collections().create(collectionSchema);
 
+      await createAnalyticsCollections(uuid);
+
       const searchKeySchema = await typesenseClient.keys().create({
         description: `Search-only key for ${uuid}`,
         actions: ["documents:search"],
-        collections: [uuid],
+        collections: [
+          uuid,
+          `${uuid}_popular_queries`,
+          `${uuid}_no_hits_queries`,
+        ],
       });
       const typesenseSearchKey = searchKeySchema.value!;
 
@@ -506,4 +514,88 @@ async function retryFailedBatches(
   }
 
   return { succeeded, failed, retryAttempted };
+}
+
+async function createAnalyticsCollections(collectionId: string) {
+  await createPopularQueriesCollection(collectionId);
+  await createNoHitsCollection(collectionId);
+  await createPopularityAnalyticsRule(collectionId);
+}
+
+async function createPopularQueriesCollection(collectionId: string) {
+  const schema: CollectionCreateSchema = {
+    name: `${collectionId}_popular_queries`,
+    fields: [
+      { name: "q", type: "string" },
+      { name: "count", type: "int32" },
+    ],
+  };
+
+  await typesenseClient.collections().create(schema);
+
+  const ruleName = `${collectionId}_queries_aggregation`;
+  const ruleConfiguration: AnalyticsRuleCreateSchema = {
+    type: "popular_queries",
+    params: {
+      source: {
+        collections: [collectionId],
+      },
+      destination: {
+        collection: `${collectionId}_popular_queries`,
+      },
+      expand_query: false,
+      limit: 1000,
+    },
+  };
+
+  await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
+}
+
+async function createNoHitsCollection(collectionId: string) {
+  const schema: CollectionCreateSchema = {
+    name: `${collectionId}_no_hits_queries`,
+    fields: [
+      { name: "q", type: "string" },
+      { name: "count", type: "int32" },
+    ],
+  };
+
+  await typesenseClient.collections().create(schema);
+
+  const ruleName = `${collectionId}_no_hits`;
+  const ruleConfiguration: AnalyticsRuleCreateSchema = {
+    type: "nohits_queries",
+    params: {
+      source: {
+        collections: [collectionId],
+      },
+      destination: {
+        collection: `${collectionId}_no_hits_queries`,
+      },
+      limit: 1000,
+    },
+  };
+
+  await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
+}
+
+async function createPopularityAnalyticsRule(collectionId: string) {
+  const ruleName = `${collectionId}_clicks`;
+  const ruleConfiguration: AnalyticsRuleCreateSchema = {
+    type: "counter",
+    params: {
+      source: {
+        collections: [collectionId],
+        events: [
+          { type: "click", weight: 1, name: `${collectionId}_click_event` },
+        ],
+      },
+      destination: {
+        collection: collectionId,
+        counter_field: "popularity",
+      },
+    },
+  };
+
+  await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
 }

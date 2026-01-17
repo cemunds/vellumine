@@ -1,13 +1,14 @@
-import * as GhostAdminAPI from "@tryghost/admin-api";
+import type * as GhostAdminAPI from "@tryghost/admin-api";
 import consola from "consola";
-import { collectionService, Document } from "./collection";
+import type { Document } from "./collection";
+import { collectionService } from "./collection";
 import { db } from "../db";
 import { collectionRepository } from "../db/repositories/collection";
 import { syncHistory, collection } from "../db/schema";
 import { eq } from "drizzle-orm";
 import * as jwt from "jsonwebtoken";
 import { JwksClient } from "jwks-rsa";
-import { Post } from "@ts-ghost/content-api";
+import type { Post } from "@ts-ghost/content-api";
 
 interface GhostServiceConfig {
   adminUrl: string;

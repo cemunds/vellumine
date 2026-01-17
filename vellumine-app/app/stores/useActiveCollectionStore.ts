@@ -1,12 +1,13 @@
 const VELLUMINE_ACTIVE_COLLECTION_KEY = "VELLUMINE_ACTIVE_COLLECTION";
 
 export const useActiveCollectionStore = defineStore("activeCollection", () => {
-  const activeCollection = useLocalStorage(VELLUMINE_ACTIVE_COLLECTION_KEY, {
-    id: "",
-  });
+  const activeCollection = useLocalStorage<TypesenseCollection | null>(
+    VELLUMINE_ACTIVE_COLLECTION_KEY,
+    null,
+  );
 
-  const setActiveCollection = (id: string) => {
-    activeCollection.value.id = id;
+  const setActiveCollection = (collection: TypesenseCollection) => {
+    activeCollection.value = collection;
   };
 
   return {

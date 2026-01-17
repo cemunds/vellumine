@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { Queryable } from "..";
+import type { Queryable } from "..";
 import { profile } from "../schema";
 
 export const userRepository = {

@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import { Queryable } from "..";
+import type { Queryable } from "..";
 import { collection, syncHistory } from "../schema";
 
 export const collectionRepository = {

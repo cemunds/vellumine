@@ -6,4 +6,5 @@ services:
       - "8108:8108"
     volumes:
       - ./typesense-data:/data
-    command: "--data-dir /data --api-key=xyz --enable-cors"
+      - ./typesense-analytics:/analytics
+    command: "--data-dir=/data --api-key=xyz --enable-cors --enable-search-analytics=true --analytics-dir=/analytics --analytics-flush-interval=60"

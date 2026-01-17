@@ -1,4 +1,4 @@
-import { DB } from "../db";
+import type { DB } from "../db";
 import { userRepository } from "../db/repositories/user";
 
 export const userService = {

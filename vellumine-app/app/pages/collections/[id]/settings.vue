@@ -2,6 +2,8 @@
 const { activeCollection } = storeToRefs(useActiveCollectionStore());
 
 async function deleteCollection() {
+  if (!activeCollection.value) return;
+
   try {
     const response = await $fetch(
       `/api/v1/collections/${activeCollection.value.id}`,
@@ -29,6 +31,8 @@ async function deleteCollection() {
 }
 
 async function syncCollection() {
+  if (!activeCollection.value) return;
+
   try {
     const response = await $fetch("/api/v1/sync", {
       method: "POST",
