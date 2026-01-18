@@ -24,7 +24,6 @@ const scriptTag = computed(() => {
   return `<!-- Vellumine Integration -->
 <script src="https://app.vellumine.com/search.min.js"
   id="vellumine"
-  data-api-key="${collection.value.typesenseSearchKey}"
   data-collection-id="${collection.value.id}"><\/script>`;
 });
 

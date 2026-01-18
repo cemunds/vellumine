@@ -31,3 +31,26 @@ export const UpdateTypesenseCollection = TypesenseCollection.pick({
   ghostAdminApiKey: true,
   typesenseSearchKey: true,
 }).partial();
+
+export const CollectionConfig = z.object({
+  stopwords: z.array(z.string()),
+  theme: z.string(),
+  language: z.string(),
+  highlightColor: z.string(),
+  apiKey: z.string(),
+  labels: z.object({
+    searchPlaceholder: z.string(),
+    commonSearchesTitle: z.string(),
+    emptyStateMessage: z.string(),
+    loadingMessage: z.string(),
+    noResultsMessage: z.string(),
+    navigateHint: z.string(),
+    closeHint: z.string(),
+    ariaSearchLabel: z.string(),
+    ariaCloseLabel: z.string(),
+    ariaResultsLabel: z.string(),
+    ariaArticleExcerpt: z.string(),
+    ariaModalLabel: z.string(),
+    untitledPost: z.string(),
+  }),
+});

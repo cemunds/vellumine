@@ -98,6 +98,9 @@ export const collectionService = {
       collectionId,
     );
   },
+  getCollectionConfig: async (db: DB, collectionId: string) => {
+    return await collectionRepository.getCollectionConfig(db, collectionId);
+  },
   create: async (
     db: DB,
     payload: CreateTypesenseCollection,
@@ -121,6 +124,12 @@ export const collectionService = {
           { name: "slug", type: "string", index: true, optional: false },
           { name: "html", type: "string", index: true, optional: false },
           { name: "plaintext", type: "string", index: true, optional: false },
+          {
+            name: "display_content",
+            type: "string",
+            index: true,
+            optional: false,
+          },
           { name: "excerpt", type: "string", index: true, optional: false },
           {
             name: "feature_image",
@@ -167,9 +176,21 @@ export const collectionService = {
       });
       const typesenseSearchKey = searchKeySchema.value!;
 
+      const scopedSearchKey = await typesenseClient
+        .keys()
+        .generateScopedSearchKey(typesenseSearchKey, {
+          query_by: "title,excerpt,plaintext,tags.name,tags.slug",
+          query_by_weights: "5,3,4,4,3",
+          highlight_fields: "title,excerpt,display_content",
+          include_fields:
+            "title,url,excerpt,display_content,published_at,author,tags,visibility",
+          highlight_affix_num_tokens: 30,
+        });
+
       const newCollection = await collectionRepository.create(tx, userId, {
         id: uuid,
         typesenseSearchKey,
+        scopedSearchKey,
         ...payload,
       });
 

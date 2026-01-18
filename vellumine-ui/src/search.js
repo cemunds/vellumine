@@ -95,7 +95,6 @@ import Typesense from "typesense";
       }
 
       const scriptTag = document.getElementById("vellumine");
-      const typesenseApiKey = scriptTag.dataset.apiKey;
       const collectionName = scriptTag.dataset.collectionId;
 
       const defaultConfig = {
@@ -106,7 +105,6 @@ import Typesense from "typesense";
             protocol: "https",
           },
         ],
-        typesenseApiKey,
         collectionName,
         commonSearches: [],
         theme: "system",
@@ -128,7 +126,6 @@ import Typesense from "typesense";
 
       if (
         !this.config.typesenseNodes ||
-        !this.config.typesenseApiKey ||
         !this.config.collectionName
       ) {
         throw new Error(
@@ -161,6 +158,18 @@ import Typesense from "typesense";
       this.initEventListeners();
       this.setupHashHandling();
       await this.handleInitialState();
+      await this.fetchConfig();
+    }
+
+    async fetchConfig() {
+      try {
+      const response = await fetch(`http://localhost:3000/api/v1/config?collectionId=${this.config.collectionName}`)
+      this.collectionConfig = await response.json()
+      } catch (err) {
+        console.log("Could not retrieve collection config: ", err)
+        throw err
+      }
+      
     }
 
     createShadowContent() {
@@ -522,7 +531,7 @@ import Typesense from "typesense";
         if (!this.typesenseClient) {
           this.typesenseClient = new Typesense.Client({
             nodes: this.config.typesenseNodes,
-            apiKey: this.config.typesenseApiKey,
+            apiKey: this.collectionConfig.apiKey,
             connectionTimeoutSeconds: 2,
           });
         }
@@ -600,12 +609,12 @@ import Typesense from "typesense";
               this.t("untitledPost");
             const excerpt =
               getHighlightedExcerpt(
-                "plaintext",
-                hit.document.plaintext?.substring(0, 80),
+                "display_content",
+                hit.document.display_content?.substring(0, 80),
               ) ||
               getHighlightedExcerpt("excerpt", hit.document.excerpt) ||
               hit.document.excerpt ||
-              hit.document.plaintext?.substring(0, 80) ||
+              hit.document.display_content?.substring(0, 80) ||
               "";
             const visibility = hit.document.visibility;
             const visibilityBadge =
@@ -670,9 +679,6 @@ import Typesense from "typesense";
         query_by: searchFields.join(","),
         query_by_weights: weights.join(","),
         highlight_full_fields: highlightFields.join(","),
-        highlight_affix_num_tokens: 30,
-        include_fields:
-          "title,url,excerpt,plaintext,published_at,tags,visibility",
         typo_tolerance: false,
         num_typos: 0,
         prefix: true,

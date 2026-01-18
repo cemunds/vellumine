@@ -1,4 +1,11 @@
-import { pgTable, uuid, text, timestamp, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  integer,
+  jsonb,
+} from "drizzle-orm/pg-core";
 
 // User Profile Table
 export const profile = pgTable("profile", {
@@ -32,6 +39,7 @@ export const collection = pgTable("collection", {
   syncError: text("sync_error"),
   postCount: integer("post_count").notNull().default(0),
   pageCount: integer("page_count").notNull().default(0),
+  config: jsonb("config").notNull(),
 });
 
 // Sync History Table

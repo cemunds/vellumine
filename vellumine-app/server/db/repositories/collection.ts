@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { Queryable } from "..";
 import { collection, syncHistory } from "../schema";
+import { CollectionConfig } from "~~/shared/parsers/collection";
 
 export const collectionRepository = {
   getUserCollections: async (
@@ -92,17 +93,58 @@ export const collectionRepository = {
 
     return userCollection.at(0) ?? null;
   },
+  getCollectionConfig: async (db: Queryable, collectionId: string) => {
+    const rows = await db
+      .select({
+        config: collection.config,
+      })
+      .from(collection)
+      .where(eq(collection.id, collectionId))
+      .limit(1);
+
+    if (rows.length === 0) {
+      throw new Error("Collection configuration not found");
+    }
+
+    const collectionConfig = CollectionConfig.parse(rows.at(0)!.config);
+
+    return collectionConfig;
+  },
   create: async (
     db: Queryable,
     userId: string,
     payload: CreateTypesenseCollection & {
       id: string;
       typesenseSearchKey: string;
+      scopedSearchKey: string;
     },
   ): Promise<TypesenseCollection> => {
+    const defaultConfig: CollectionConfig = {
+      stopwords: [],
+      theme: "system",
+      language: "en",
+      highlightColor: "#FFFF00",
+      apiKey: payload.scopedSearchKey,
+      labels: {
+        searchPlaceholder: "Search for anything",
+        commonSearchesTitle: "Common searches",
+        emptyStateMessage: "Start typing to search...",
+        loadingMessage: "Searching...",
+        noResultsMessage: "No results found for your search",
+        navigateHint: "to navigate",
+        closeHint: "to close",
+        ariaSearchLabel: "Search",
+        ariaCloseLabel: "Close search",
+        ariaResultsLabel: "Search results",
+        ariaArticleExcerpt: "Article excerpt",
+        ariaModalLabel: "Search",
+        untitledPost: "Untitled",
+      },
+    };
+
     const createdCollection = await db
       .insert(collection)
-      .values({ ...payload, userId })
+      .values({ ...payload, userId, config: defaultConfig })
       .returning({
         id: collection.id,
         name: collection.name,
