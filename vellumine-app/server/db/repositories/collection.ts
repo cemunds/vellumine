@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { Queryable } from "..";
-import { collection, syncHistory } from "../schema";
+import { collection, searchEvent, syncHistory } from "../schema";
 import { CollectionConfig } from "~~/shared/parsers/collection";
 
 export const collectionRepository = {
@@ -109,6 +109,27 @@ export const collectionRepository = {
     const collectionConfig = CollectionConfig.parse(rows.at(0)!.config);
 
     return collectionConfig;
+  },
+  trackSearchEvent: async (
+    db: Queryable,
+    event: {
+      collectionId: string;
+      query: string;
+      numResults: number;
+      userAgent: string;
+      ipAddress: string;
+    },
+  ) => {
+    const createdEvent = await db
+      .insert(searchEvent)
+      .values({
+        ...event,
+      })
+      .returning({
+        id: searchEvent.id,
+      });
+
+    return createdEvent[0];
   },
   create: async (
     db: Queryable,

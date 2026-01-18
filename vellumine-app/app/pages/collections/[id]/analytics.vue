@@ -23,6 +23,23 @@ const noHits = shallowRef<SearchResponse<{
   q: string;
 }> | null>(null);
 
+const totalSearchQueries = computed(() => {
+  const popularSum =
+    popularQueries.value?.hits?.reduce(
+      (sum, hit) => sum + hit.document.count,
+      0,
+    ) || 0;
+  const noHitsSum =
+    noHits.value?.hits?.reduce((sum, hit) => sum + hit.document.count, 0) || 0;
+  return popularSum + noHitsSum;
+});
+
+const totalNoHitsQueries = computed(() => {
+  return (
+    noHits.value?.hits?.reduce((sum, hit) => sum + hit.document.count, 0) || 0
+  );
+});
+
 watchEffect(() => {
   if (!activeCollection.value) return;
 
@@ -100,18 +117,60 @@ fetchAnalyticsData();
     </template>
 
     <template #body>
-      <div>
-        <div v-for="hit in popularQueries?.hits">
-          <div>{{ hit.document.q }}</div>
-          <div>{{ hit.document.count }}</div>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <UCard>
+          <template #header>
+            <h3 class="text-lg font-semibold">Total Search Queries</h3>
+          </template>
+          <div class="p-4 text-center">
+            <span class="text-3xl font-bold">{{ totalSearchQueries }}</span>
+          </div>
+        </UCard>
 
-      <div>
-        <div v-for="hit in noHits?.hits">
-          <div>{{ hit.document.q }}</div>
-          <div>{{ hit.document.count }}</div>
-        </div>
+        <UCard>
+          <template #header>
+            <h3 class="text-lg font-semibold">Total No Hits Queries</h3>
+          </template>
+          <div class="p-4 text-center">
+            <span class="text-3xl font-bold">{{ totalNoHitsQueries }}</span>
+          </div>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h3 class="text-lg font-semibold">Popular Queries</h3>
+          </template>
+          <div
+            v-for="hit in popularQueries?.hits"
+            :key="hit.document.id"
+            class="p-4 border-b last:border-b-0"
+          >
+            <div class="flex justify-between items-center">
+              <span class="font-medium">{{ hit.document.q }}</span>
+              <UBadge color="success" variant="soft">{{
+                hit.document.count
+              }}</UBadge>
+            </div>
+          </div>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h3 class="text-lg font-semibold">No Hits Queries</h3>
+          </template>
+          <div
+            v-for="hit in noHits?.hits"
+            :key="hit.document.id"
+            class="p-4 border-b last:border-b-0"
+          >
+            <div class="flex justify-between items-center">
+              <span class="font-medium">{{ hit.document.q }}</span>
+              <UBadge color="error" variant="soft">{{
+                hit.document.count
+              }}</UBadge>
+            </div>
+          </div>
+        </UCard>
       </div>
     </template>
   </UDashboardPanel>

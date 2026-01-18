@@ -247,6 +247,18 @@ export const collectionService = {
 
     return collectionId;
   },
+  trackSearchEvent: async (
+    db: DB,
+    event: {
+      collectionId: string;
+      query: string;
+      numResults: number;
+      userAgent: string;
+      ipAddress: string;
+    },
+  ) => {
+    return await collectionRepository.trackSearchEvent(db, event);
+  },
   getSyncHistory: async (db: DB, collectionId: string, limit: number) => {
     return await collectionRepository.getSyncHistory(db, collectionId, limit);
   },

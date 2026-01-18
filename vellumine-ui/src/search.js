@@ -68,6 +68,7 @@ import Typesense from "typesense";
       this.scrollPosition = 0;
       this.selectedIndex = -1;
       this.searchDebounceTimeout = null;
+      this.searchEventTimeout = null;
       this.cachedElements = {};
       this.typesenseClient = null;
 
@@ -124,10 +125,7 @@ import Typesense from "typesense";
         commonSearches: defaultConfig.commonSearches || [],
       };
 
-      if (
-        !this.config.typesenseNodes ||
-        !this.config.collectionName
-      ) {
+      if (!this.config.typesenseNodes || !this.config.collectionName) {
         throw new Error(
           "VellumineSearch: Missing required Typesense configuration",
         );
@@ -163,13 +161,32 @@ import Typesense from "typesense";
 
     async fetchConfig() {
       try {
-      const response = await fetch(`http://localhost:3000/api/v1/config?collectionId=${this.config.collectionName}`)
-      this.collectionConfig = await response.json()
+        const response = await fetch(
+          `http://localhost:3000/api/v1/config?collectionId=${this.config.collectionName}`,
+        );
+        this.collectionConfig = await response.json();
       } catch (err) {
-        console.log("Could not retrieve collection config: ", err)
-        throw err
+        console.log("Could not retrieve collection config: ", err);
+        throw err;
       }
-      
+    }
+
+    async trackSearchEvent(query, numResults) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/v1/analytics/event`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              collectionId: this.config.collectionName,
+              query: query,
+              numResults: numResults,
+            }),
+          },
+        );
+      } catch (err) {
+        console.log("Could not track search event: ", err);
+      }
     }
 
     createShadowContent() {
@@ -318,6 +335,11 @@ import Typesense from "typesense";
         // Clear any pending search
         if (this.searchDebounceTimeout) {
           clearTimeout(this.searchDebounceTimeout);
+        }
+
+        // Clear any pending empty search tracking
+        if (this.searchEventTimeout) {
+          clearTimeout(this.searchEventTimeout);
         }
 
         // Debounce search
@@ -549,6 +571,13 @@ import Typesense from "typesense";
 
         if (this.loadingState)
           this.loadingState.classList.add(`${CSS_PREFIX}-hidden`);
+
+        // Track empty search after 4 seconds of inactivity
+        if (query !== "") {
+          this.searchEventTimeout = setTimeout(() => {
+            this.trackSearchEvent(query, results.hits.length);
+          }, 4000);
+        }
 
         if (results.hits.length === 0) {
           if (this.emptyState)

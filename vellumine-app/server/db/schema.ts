@@ -73,3 +73,15 @@ export const webhookEvents = pgTable("webhook_events", {
   status: text("status").notNull().default("pending"),
   errorMessage: text("error_message"),
 });
+
+export const searchEvent = pgTable("search_event", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  query: text("query").notNull(),
+  numResults: integer("num_results").notNull(),
+  userAgent: text("user_agent").notNull(),
+  ipAddress: text("ip_address").notNull(),
+  collectionId: uuid("collection_id")
+    .notNull()
+    .references(() => collection.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
