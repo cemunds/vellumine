@@ -240,9 +240,9 @@ export const collectionService = {
     await db.transaction(async (tx) => {
       await collectionRepository.delete(db, collectionId);
       await typesenseClient.collections(collectionId).delete();
-      await deletePopularQueriesCollection(collectionId)
-      await deleteNoHitsCollection(collectionId)
-      await deletePopularityAnalyticsRule(collectionId)
+      await deletePopularQueriesCollection(collectionId);
+      await deleteNoHitsCollection(collectionId);
+      await deletePopularityAnalyticsRule(collectionId);
     });
 
     return collectionId;
@@ -546,12 +546,18 @@ async function createAnalyticsCollections(collectionId: string) {
   await createPopularityAnalyticsRule(collectionId);
 }
 
-const getPopularQueriesCollectionName = (collectionId: string) => `${collectionId}_popular_queries`
-const getPopularQueriesAnalyticsRuleName = (collectionId: string) => `${collectionId}_queries_aggregation`
+const getPopularQueriesCollectionName = (collectionId: string) =>
+  `${collectionId}_popular_queries`;
+const getPopularQueriesAnalyticsRuleName = (collectionId: string) =>
+  `${collectionId}_queries_aggregation`;
 
 async function deletePopularQueriesCollection(collectionId: string) {
-  await typesenseClient.collections(getPopularQueriesCollectionName(collectionId)).delete()
-  await typesenseClient.analytics.rules(getPopularQueriesAnalyticsRuleName(collectionId)).delete()
+  await typesenseClient
+    .collections(getPopularQueriesCollectionName(collectionId))
+    .delete();
+  await typesenseClient.analytics
+    .rules(getPopularQueriesAnalyticsRuleName(collectionId))
+    .delete();
 }
 
 async function createPopularQueriesCollection(collectionId: string) {
@@ -583,12 +589,18 @@ async function createPopularQueriesCollection(collectionId: string) {
   await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
 }
 
-const getNoHitsCollectionName = (collectionId: string) => `${collectionId}_no_hits_queries`
-const getNoHitsAnalyticsRuleName = (collectionId: string) => `${collectionId}_no_hits`
+const getNoHitsCollectionName = (collectionId: string) =>
+  `${collectionId}_no_hits_queries`;
+const getNoHitsAnalyticsRuleName = (collectionId: string) =>
+  `${collectionId}_no_hits`;
 
 async function deleteNoHitsCollection(collectionId: string) {
-  await typesenseClient.collections(getNoHitsCollectionName(collectionId)).delete()
-  await typesenseClient.analytics.rules(getNoHitsAnalyticsRuleName(collectionId)).delete()
+  await typesenseClient
+    .collections(getNoHitsCollectionName(collectionId))
+    .delete();
+  await typesenseClient.analytics
+    .rules(getNoHitsAnalyticsRuleName(collectionId))
+    .delete();
 }
 
 async function createNoHitsCollection(collectionId: string) {
@@ -619,10 +631,13 @@ async function createNoHitsCollection(collectionId: string) {
   await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
 }
 
-const getPopularityAnalyticsRuleName = (collectionId: string) => `${collectionId}_clicks`;
+const getPopularityAnalyticsRuleName = (collectionId: string) =>
+  `${collectionId}_clicks`;
 
 async function deletePopularityAnalyticsRule(collectionId: string) {
-  await typesenseClient.analytics.rules(getPopularityAnalyticsRuleName(collectionId)).delete()
+  await typesenseClient.analytics
+    .rules(getPopularityAnalyticsRuleName(collectionId))
+    .delete();
 }
 
 async function createPopularityAnalyticsRule(collectionId: string) {

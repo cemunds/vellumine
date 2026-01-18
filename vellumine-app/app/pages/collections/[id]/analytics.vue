@@ -12,8 +12,16 @@ const {
 const { activeCollection } = storeToRefs(useActiveCollectionStore());
 
 let typesenseClient: TypesenseClient | null = null;
-const popularQueries = shallowRef<SearchResponse<object> | null>(null);
-const noHits = shallowRef<SearchResponse<object> | null>(null);
+const popularQueries = shallowRef<SearchResponse<{
+  count: number;
+  id: string;
+  q: string;
+}> | null>(null);
+const noHits = shallowRef<SearchResponse<{
+  count: number;
+  id: string;
+  q: string;
+}> | null>(null);
 
 watchEffect(() => {
   if (!activeCollection.value) return;
@@ -88,41 +96,23 @@ fetchAnalyticsData();
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-
-        <template #right>
-          <UTooltip text="Notifications" :shortcuts="['N']">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              square
-              @click="isNotificationsSlideoverOpen = true"
-            >
-              <UChip color="error" inset>
-                <UIcon name="i-lucide-bell" class="size-5 shrink-0" />
-              </UChip>
-            </UButton>
-          </UTooltip>
-
-          <UDropdownMenu :items="items">
-            <UButton icon="i-lucide-plus" size="md" class="rounded-full" />
-          </UDropdownMenu>
-        </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar>
-        <template #left>
-          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
-          <HomeDateRangePicker v-model="range" class="-ms-1" />
-
-          <HomePeriodSelect v-model="period" :range="range" />
-        </template>
-      </UDashboardToolbar>
     </template>
 
     <template #body>
-      <HomeStats :period="period" :range="range" />
-      <HomeChart :period="period" :range="range" />
-      <HomeSales :period="period" :range="range" />
+      <div>
+        <div v-for="hit in popularQueries?.hits">
+          <div>{{ hit.document.q }}</div>
+          <div>{{ hit.document.count }}</div>
+        </div>
+      </div>
+
+      <div>
+        <div v-for="hit in noHits?.hits">
+          <div>{{ hit.document.q }}</div>
+          <div>{{ hit.document.count }}</div>
+        </div>
+      </div>
     </template>
   </UDashboardPanel>
 </template>
