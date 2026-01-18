@@ -240,6 +240,9 @@ export const collectionService = {
     await db.transaction(async (tx) => {
       await collectionRepository.delete(db, collectionId);
       await typesenseClient.collections(collectionId).delete();
+      await deletePopularQueriesCollection(collectionId)
+      await deleteNoHitsCollection(collectionId)
+      await deletePopularityAnalyticsRule(collectionId)
     });
 
     return collectionId;
@@ -543,9 +546,17 @@ async function createAnalyticsCollections(collectionId: string) {
   await createPopularityAnalyticsRule(collectionId);
 }
 
+const getPopularQueriesCollectionName = (collectionId: string) => `${collectionId}_popular_queries`
+const getPopularQueriesAnalyticsRuleName = (collectionId: string) => `${collectionId}_queries_aggregation`
+
+async function deletePopularQueriesCollection(collectionId: string) {
+  await typesenseClient.collections(getPopularQueriesCollectionName(collectionId)).delete()
+  await typesenseClient.analytics.rules(getPopularQueriesAnalyticsRuleName(collectionId)).delete()
+}
+
 async function createPopularQueriesCollection(collectionId: string) {
   const schema: CollectionCreateSchema = {
-    name: `${collectionId}_popular_queries`,
+    name: getPopularQueriesCollectionName(collectionId),
     fields: [
       { name: "q", type: "string" },
       { name: "count", type: "int32" },
@@ -554,7 +565,7 @@ async function createPopularQueriesCollection(collectionId: string) {
 
   await typesenseClient.collections().create(schema);
 
-  const ruleName = `${collectionId}_queries_aggregation`;
+  const ruleName = getPopularQueriesAnalyticsRuleName(collectionId);
   const ruleConfiguration: AnalyticsRuleCreateSchema = {
     type: "popular_queries",
     params: {
@@ -572,9 +583,17 @@ async function createPopularQueriesCollection(collectionId: string) {
   await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
 }
 
+const getNoHitsCollectionName = (collectionId: string) => `${collectionId}_no_hits_queries`
+const getNoHitsAnalyticsRuleName = (collectionId: string) => `${collectionId}_no_hits`
+
+async function deleteNoHitsCollection(collectionId: string) {
+  await typesenseClient.collections(getNoHitsCollectionName(collectionId)).delete()
+  await typesenseClient.analytics.rules(getNoHitsAnalyticsRuleName(collectionId)).delete()
+}
+
 async function createNoHitsCollection(collectionId: string) {
   const schema: CollectionCreateSchema = {
-    name: `${collectionId}_no_hits_queries`,
+    name: getNoHitsCollectionName(collectionId),
     fields: [
       { name: "q", type: "string" },
       { name: "count", type: "int32" },
@@ -583,7 +602,7 @@ async function createNoHitsCollection(collectionId: string) {
 
   await typesenseClient.collections().create(schema);
 
-  const ruleName = `${collectionId}_no_hits`;
+  const ruleName = getNoHitsAnalyticsRuleName(collectionId);
   const ruleConfiguration: AnalyticsRuleCreateSchema = {
     type: "nohits_queries",
     params: {
@@ -600,8 +619,14 @@ async function createNoHitsCollection(collectionId: string) {
   await typesenseClient.analytics.rules().upsert(ruleName, ruleConfiguration);
 }
 
+const getPopularityAnalyticsRuleName = (collectionId: string) => `${collectionId}_clicks`;
+
+async function deletePopularityAnalyticsRule(collectionId: string) {
+  await typesenseClient.analytics.rules(getPopularityAnalyticsRuleName(collectionId)).delete()
+}
+
 async function createPopularityAnalyticsRule(collectionId: string) {
-  const ruleName = `${collectionId}_clicks`;
+  const ruleName = getPopularityAnalyticsRuleName(collectionId);
   const ruleConfiguration: AnalyticsRuleCreateSchema = {
     type: "counter",
     params: {
